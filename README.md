@@ -3,11 +3,6 @@ This Discord bot was developed as a personal project to replace multiple bots in
 
 BibleRef is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible and the Strong's Concordance. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
 
-- [ ] Create install and hosting guide.
-- [ ] Add /brhelp command to bot.
-- [ ] https://github.com/bburd/BibleRef/issues/2
-- [ ] https://github.com/bburd/BibleRef/issues/3
-
 >[!NOTE]
 >This was created with God's will and ChatGPT, all glory to God it is working. 🙏
 
