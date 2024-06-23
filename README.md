@@ -3,6 +3,7 @@ This Discord bot is a comprehensive tool for Bible study and engagement, featuri
 
 - [ ] Create install and hosting guide.
 - [ ] Add /brhelp command to bot.
+- [ ] https://github.com/bburd/BibleRef/issues/2
 
 >[!NOTE]
 >This was created with ChatGPT, praise God it is working. 🙏
