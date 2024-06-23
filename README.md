@@ -38,7 +38,7 @@ This Discord bot is a comprehensive tool for Bible study and engagement, featuri
 
 ## Getting Started:
 
-To get started with this bot, you’ll need to have Node.js installed. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
+To get started with this bot, you will need to have a hosting solution for Node.js and the host will need to allow more than one sqlite database. Check the setup guide for details. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
 
 ## Commands:
 
@@ -50,7 +50,8 @@ To get started with this bot, you’ll need to have Node.js installed. Clone the
 
 ## Configuration:
 
-The bot uses a JSON configuration file (config.json) to store sensitive information securely. Here's a sample configuration file:
+The bot uses a JSON configuration file (config.json) to store sensitive information securely. ***Do not send your config.json to anyone!!***
+Here's a sample configuration file:
 ### DO NOT COPY PASTE THE EXAMPLE BELOW. There is a config.json file that can be edited included.
 ```
 {
