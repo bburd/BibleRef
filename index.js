@@ -1,9 +1,13 @@
 // index.js
-require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
+
+// Load configuration
+const config = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "config.json"), "utf8")
+);
 
 const client = new Client({
   intents: [
@@ -49,4 +53,4 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.login(process.env.TOKEN);
+client.login(config.token); // Use token from the JSON config file
