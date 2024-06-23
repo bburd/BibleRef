@@ -1,5 +1,7 @@
 # BibleRef
-This Discord bot is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible and the Strong's Concordance. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
+This Discord bot was developed as a personal project to replace multiple bots in my server with just one. If you see this I have made this public and anyone is free to do what they wish with this project.
+
+BibleRef is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible and the Strong's Concordance. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
 
 - [ ] Create install and hosting guide.
 - [ ] Add /brhelp command to bot.
@@ -7,7 +9,7 @@ This Discord bot is a comprehensive tool for Bible study and engagement, featuri
 - [ ] https://github.com/bburd/BibleRef/issues/3
 
 >[!NOTE]
->This was created with ChatGPT, praise God it is working. 🙏
+>This was created with God's will and ChatGPT, all glory to God it is working. 🙏
 
 >[!TIP]
 >More trivia questions are always needed and I am open to other suggestions, however my coding skills are rather limited.
@@ -17,6 +19,12 @@ This Discord bot is a comprehensive tool for Bible study and engagement, featuri
 
 > [!WARNING]
 > This bot will require you setup a discord bot using the [Discord developer portal](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://discord.com/developers/applications&ved=2ahUKEwjrsZnVlvGGAxUSSDABHWEbBQwQFnoECAYQAQ&usg=AOvVaw1wrZe_Tr9Sav0Zx4-42-Jf). It is free and easy, there are many guides available.
+
+## Acknowledgments
+
+### Special thanks to:
+   [1John419](https://github.com/1John419) for the KJV and Concordance data.\
+   [Samleo8](https://github.com/Samleo8) for the trivia questions.
 
 ## Key Features:
 ### 1. Full KJV Bible:
