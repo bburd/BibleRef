@@ -22,9 +22,9 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the f
 
 ## Acknowledgments
 
-### Special thanks to:
-   [1John419](https://github.com/1John419) for the KJV and Concordance data.\
-   [Samleo8](https://github.com/Samleo8) for the trivia questions.
+### Special thanks to the following repos:
+   [1John419](https://github.com/1John419/kjs) for the KJV and Concordance data.\
+   [Samleo8](https://github.com/Samleo8/BibleQuizzleDiscord) for some of the trivia questions.
 
 ## Key Features:
 ### 1. Full KJV Bible:
