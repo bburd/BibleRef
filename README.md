@@ -39,7 +39,7 @@ This Discord bot is a comprehensive tool for Bible study and engagement, featuri
 
 To get started with this bot, you’ll need to have Node.js installed. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
 
-# Commands:
+## Commands:
 
     /brsearch Luke 1:1-3 or Luke - Retrieve all information matching search term.
     /brpoints - View the top 10 users points standings.
@@ -47,9 +47,17 @@ To get started with this bot, you’ll need to have Node.js installed. Clone the
     /brdaily - View the daily verse.
     /brtrivia - Start a Bible trivia game, optionally specifying a category.
 
-Configuration:
+## Configuration:
 
 The bot uses a JSON configuration file (config.json) to store sensitive information securely. Here's a sample configuration file:
+### DO NOT COPY PASTE THE EXAMPLE BELOW. There is a config.json file that can be edited included.
+```
+{
+  "token": A09Kv834Dv908G32E4fnaEsv8T23TfvH8hf34DF8h, // Your bot token should not have the quotation marks ("")
+  "clientId": 123498741253, // Your client ID should not have the quotation marks ("")
+  "guildId": 123489075413 // Your guild ID should not have the quotation marks ("")
+}
+```
 
 
 
