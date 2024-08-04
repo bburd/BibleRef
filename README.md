@@ -1,7 +1,7 @@
 # BibleRef
 This Discord bot was developed as a personal project to replace multiple bots in my server with just one. If you see this I have made this public and anyone is free to do what they wish with this project.
 
-BibleRef is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible and the Strong's Concordance. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
+BibleRef is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible ~~and the Strong's Concordance~~. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
 
 >[!NOTE]
 >This was created with God's will and ChatGPT, all glory to God it is working. 🙏
@@ -25,8 +25,9 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the f
 ### 1. Full KJV Bible:
    - Access the complete text of the King James Version Bible directly within Discord. Easily search and reference scriptures for study, discussion, and inspiration.
 
-### 2. Strong's Concordance:
-   - Utilize the Strong's Concordance for in-depth Bible study. Look up the original Greek and Hebrew words, understand their meanings, and see where they appear in the Bible.
+### 2. ~~Strong's Concordance:~~
+   - ~~Utilize the Strong's Concordance for in-depth Bible study. Look up the original Greek and Hebrew words, understand their meanings, and see where they appear in the Bible.~~
+      **Strongs concordance is currently a WIP**
 
 ### 3. Daily Verse:
    - Receive a daily Bible verse automatically delivered to your Discord server. Start your day with a dose of spiritual inspiration and reflection.
