@@ -8,7 +8,6 @@ let isScoresLoaded = false;
 const scoresFilePath = "scores.json";
 
 async function loadScores() {
-  isLoadingScores = true;
   try {
     const data = await fs.readFile(scoresFilePath, "utf8");
     scores = JSON.parse(data);
@@ -117,6 +116,8 @@ module.exports = {
       });
 
       const emojis = ["🇦", "🇧", "🇨", "🇩"].slice(0, shuffledChoices.length);
+      const answeredUsers = new Set(); // Track users who have answered
+
       for (const emoji of emojis) {
         await message.react(emoji);
       }
@@ -128,6 +129,20 @@ module.exports = {
       });
 
       collector.on("collect", async (reaction, user) => {
+        // Check if the user has already answered
+        if (answeredUsers.has(user.id)) {
+          await interaction.channel.send({
+            content: `${user.username}, you have already answered this question.`,
+          });
+          // Remove the reaction of the user to indicate they can't answer again
+          reaction.users.remove(user.id).catch(console.error);
+          return;
+        }
+
+        // Mark the user as having answered
+        answeredUsers.add(user.id);
+
+        // Handle the reaction
         handleReaction(
           reaction,
           user,
@@ -181,9 +196,10 @@ async function handleReaction(
   const resultMessage = isCorrect
     ? "Correct! 🎉"
     : `That's not it! The correct answer was: ${triviaQuestion.answer}`;
-  await interaction.followUp({
+
+  // Send a public message to the channel with the result
+  await interaction.channel.send({
     content: `${user.username}, ${resultMessage}`,
-    ephemeral: true,
   });
 
   if (isCorrect) {

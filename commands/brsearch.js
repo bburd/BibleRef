@@ -11,10 +11,7 @@ const path = require("path");
 
 function setupDatabaseConnections() {
   const dbPaths = {
-    strong_dict: "../strong_dict.db",
-    kjv_acrostics: "../kjv_acrostics.db",
-    kjv_pure: "../kjv_pure.db",
-    strong_pure: "../strong_pure.db",
+    bible_db: "../kjv_bible.db", // Updated path for your database
   };
   const connections = {};
   Object.entries(dbPaths).forEach(([key, dbPath]) => {
@@ -38,7 +35,7 @@ const dbConnections = setupDatabaseConnections();
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("brsearch")
-    .setDescription("Searches the Strong's dictionary")
+    .setDescription("Searches the KJV Bible")
     .addStringOption((option) =>
       option
         .setName("query")
@@ -65,18 +62,48 @@ module.exports = {
 };
 
 async function performSearch(query) {
-  const queries = buildQueries(query);
-  const results = await Promise.all(
-    Object.entries(queries).map(async ([dbKey, { sql, params }]) => {
-      try {
-        return await queryDatabase(dbConnections[dbKey], sql, params);
-      } catch (error) {
-        console.error(`Error querying ${dbKey}:`, error);
-        return []; // Return an empty array in case of an error to continue with other queries
-      }
-    })
-  );
-  return results.flat(); // Flatten the results array
+  const results = [];
+  try {
+    const isVersePattern = /^[a-zA-Z]+\s+\d+:\d+(-\d+)?$/; // Matches verses like "John 3:16" or "John 3:16-17"
+    const isTextPattern = /^".*"$/; // Matches phrases enclosed in quotes, e.g., "In the beginning"
+
+    if (isVersePattern.test(query)) {
+      const [book, chapterVerse] = query.split(" ");
+      const [chapter, verses] = chapterVerse.split(":");
+      const [startVerse, endVerse] = verses.includes("-")
+        ? verses.split("-").map(Number)
+        : [Number(verses), Number(verses)];
+
+      const rows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ? ORDER BY verse`,
+        [`${book}%`, chapter, startVerse, endVerse]
+      );
+
+      results.push(...rows);
+    } else if (isTextPattern.test(query)) {
+      const searchText = query.slice(1, -1); // Remove quotes
+      const rows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE text LIKE ?`,
+        [`%${searchText}%`]
+      );
+
+      results.push(...rows);
+    } else {
+      // Fallback to book name search or keyword search
+      const rows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? OR text LIKE ?`,
+        [`%${query}%`, `%${query}%`]
+      );
+
+      results.push(...rows);
+    }
+  } catch (error) {
+    console.error("Error executing search:", error);
+  }
+  return results;
 }
 
 function queryDatabase(db, sql, params) {
@@ -88,56 +115,14 @@ function queryDatabase(db, sql, params) {
   });
 }
 
-function buildQueries(query) {
-  const queries = {};
-  const singleWord = !query.includes(" ");
-  const letterNumberPattern = /^[a-zA-Z]\d+$/; // Matches any letter followed by one or more digits
-  const verseRangePattern = /^[a-zA-Z]+\s+\d+:\d+-\d+$/; // Matches verse ranges like "Luke 1:1-4"
-  const versePattern = /^[a-zA-Z]+\s+\d+:\d+$/; // Matches Bible verse references like "Luke 1:1"
-
-  if (verseRangePattern.test(query)) {
-    const [book, chapterVerse] = query.split(" ");
-    const [chapter, verses] = chapterVerse.split(":");
-    const [startVerse, endVerse] = verses.split("-").map(Number);
-    queries.kjv_pure = {
-      sql: `SELECT verse_text, book_name FROM kjv_pure WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ?`,
-      params: [`${book}%`, chapter, startVerse, endVerse],
-    };
-  } else if (versePattern.test(query)) {
-    queries.kjv_pure = {
-      sql: `SELECT verse_text, book_name FROM kjv_pure WHERE book_name = ?`,
-      params: [query],
-    };
-  } else if (singleWord && letterNumberPattern.test(query)) {
-    queries.strong_dict = {
-      sql: `SELECT key, transliteration, pronunciation, definitions FROM dictionary WHERE key LIKE ?`,
-      params: [`%${query}%`],
-    };
-  } else {
-    queries.kjv_acrostics = {
-      sql: `SELECT key, value FROM acrostics WHERE value LIKE ?`,
-      params: [`%${query}%`],
-    };
-    queries.kjv_pure = {
-      sql: `SELECT verse_text, book_name FROM kjv_pure WHERE verse_text LIKE ? OR book_name LIKE ?`,
-      params: [`%${query}%`, `%${query}%`],
-    };
-    queries.strong_pure = {
-      sql: `SELECT text_part, strong_ref FROM strong_pure WHERE text_part LIKE ? OR strong_ref LIKE ?`,
-      params: [`%${query}%`, `%${query}%`],
-    };
-  }
-
-  return queries;
-}
-
 async function sendPaginatedResults(interaction, results, query) {
   const itemsPerPage = 10;
   const pages = [];
   const totalResults = results.length;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-  // Prepare the pages
+  console.log(`Total results: ${totalResults}`);
+
   for (let i = 0; i < totalResults; i += itemsPerPage) {
     const page = results.slice(i, i + itemsPerPage);
     const embed = new EmbedBuilder()
@@ -152,17 +137,16 @@ async function sendPaginatedResults(interaction, results, query) {
         )} of ${totalResults}`
       );
 
-    page.forEach((result, index) => {
+    for (let index = 0; index < page.length; index++) {
+      const result = page[index];
+      const completeVerse = `${result.book_name} ${result.chapter}:${result.verse} - ${result.text}`;
+
       embed.addFields({
         name: `Result ${i + index + 1}`,
-        value: `${result.book_name ? `${result.book_name} - ` : ""}${
-          result.verse_text ||
-          result.value ||
-          "No detailed description available."
-        }`,
+        value: completeVerse,
         inline: false,
       });
-    });
+    }
     pages.push(embed);
   }
 
