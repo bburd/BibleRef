@@ -92,5 +92,15 @@ GUILD_ID=YOUR_SERVERID
 # Rename this file to .env
 ```
 
+## Testing
+
+Run the automated tests with the built-in Node.js test runner:
+
+```bash
+node --test
+```
+
+This executes all unit tests, including full-text search coverage for `SearchEngine`.
+
 
 
