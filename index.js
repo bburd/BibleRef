@@ -8,10 +8,8 @@ const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Corre
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
+    // Retain GuildMessageReactions for reaction-based trivia games
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.DirectMessageReactions,
   ],
 });
 
