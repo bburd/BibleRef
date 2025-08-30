@@ -2,9 +2,8 @@
 // It is my first project, courtesy of ChatGPT 4o. -bburd
 
 require("dotenv").config();
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
 const fs = require("fs");
+const { fetchWithRetry } = require("./httpClient");
 
 const commands = [];
 const commandFiles = fs
@@ -16,27 +15,39 @@ for (const file of commandFiles) {
   commands.push(command.data.toJSON());
 }
 
-const rest = new REST({ version: "9" }).setToken(process.env.TOKEN);
-
 (async () => {
   try {
     console.log("Started refreshing application (/) commands.");
 
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bot ${process.env.TOKEN}`,
+    };
+    const baseUrl = "https://discord.com/api/v9";
+
     if (process.env.GUILD_ID) {
-      await rest.put(
-        Routes.applicationGuildCommands(
-          process.env.CLIENT_ID,
-          process.env.GUILD_ID
-        ),
-        { body: commands }
-      );
+      const url = `${baseUrl}/applications/${process.env.CLIENT_ID}/guilds/${process.env.GUILD_ID}/commands`;
+      const res = await fetchWithRetry(url, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(commands),
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to reload guild commands: ${res.status}`);
+      }
       console.log(
         "Successfully reloaded guild-specific application (/) commands."
       );
     } else {
-      await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), {
-        body: commands,
+      const url = `${baseUrl}/applications/${process.env.CLIENT_ID}/commands`;
+      const res = await fetchWithRetry(url, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(commands),
       });
+      if (!res.ok) {
+        throw new Error(`Failed to reload global commands: ${res.status}`);
+      }
       console.log("Successfully reloaded global application (/) commands.");
     }
   } catch (error) {
