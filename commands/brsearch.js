@@ -85,17 +85,17 @@ async function performSearch(query) {
       const searchText = query.slice(1, -1); // Remove quotes
       const rows = await queryDatabase(
         dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE text LIKE ?`,
-        [`%${searchText}%`]
+        `SELECT k.book_name, k.chapter, k.verse, k.text, snippet(kjv_fts, 1, '<b>', '</b>', '...', 10) AS snippet FROM kjv_fts JOIN kjv k ON kjv_fts.rowid = k.id WHERE kjv_fts MATCH ?`,
+        [`"${searchText}"`]
       );
 
       results.push(...rows);
     } else {
-      // Fallback to book name search or keyword search
+      // Fallback to FTS keyword search across book names and verse text
       const rows = await queryDatabase(
         dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? OR text LIKE ?`,
-        [`%${query}%`, `%${query}%`]
+        `SELECT k.book_name, k.chapter, k.verse, k.text, snippet(kjv_fts, 1, '<b>', '</b>', '...', 10) AS snippet FROM kjv_fts JOIN kjv k ON kjv_fts.rowid = k.id WHERE kjv_fts MATCH ?`,
+        [query]
       );
 
       results.push(...rows);
@@ -139,7 +139,8 @@ async function sendPaginatedResults(interaction, results, query) {
 
     for (let index = 0; index < page.length; index++) {
       const result = page[index];
-      const completeVerse = `${result.book_name} ${result.chapter}:${result.verse} - ${result.text}`;
+      const verseText = result.snippet || result.text;
+      const completeVerse = `${result.book_name} ${result.chapter}:${result.verse} - ${verseText}`;
 
       embed.addFields({
         name: `Result ${i + index + 1}`,

@@ -40,48 +40,47 @@ class SearchEngine {
   }
 
   async search(term) {
-    const searchTerm = `%${term}%`;
     try {
       const results = await Promise.all([
         this.queryDatabase(
           "dbDict",
-          "SELECT * FROM dictionary WHERE key LIKE ? OR transliteration LIKE ? OR definitions LIKE ?",
-          [searchTerm, searchTerm, searchTerm]
+          "SELECT d.*, snippet(dictionary_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM dictionary_fts JOIN dictionary d ON dictionary_fts.rowid = d.rowid WHERE dictionary_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbPure",
-          "SELECT * FROM strong_pure WHERE text_part LIKE ?",
-          [searchTerm]
+          "SELECT sp.*, snippet(strong_pure_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM strong_pure_fts JOIN strong_pure sp ON strong_pure_fts.rowid = sp.rowid WHERE strong_pure_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbWords",
-          "SELECT * FROM strong_words WHERE strong_id LIKE ?",
-          [searchTerm]
+          "SELECT sw.*, snippet(strong_words_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM strong_words_fts JOIN strong_words sw ON strong_words_fts.rowid = sw.rowid WHERE strong_words_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbAcrostics",
-          "SELECT * FROM acrostics WHERE value LIKE ?",
-          [searchTerm]
+          "SELECT a.*, snippet(acrostics_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM acrostics_fts JOIN acrostics a ON acrostics_fts.rowid = a.rowid WHERE acrostics_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbBooks",
-          "SELECT * FROM books WHERE name LIKE ? OR abbreviation LIKE ?",
-          [searchTerm, searchTerm]
+          "SELECT b.*, snippet(books_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM books_fts JOIN books b ON books_fts.rowid = b.rowid WHERE books_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbCitations",
-          "SELECT * FROM kjv_citations WHERE citation LIKE ?",
-          [searchTerm]
+          "SELECT c.*, snippet(kjv_citations_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM kjv_citations_fts JOIN kjv_citations c ON kjv_citations_fts.rowid = c.rowid WHERE kjv_citations_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbChapters",
-          "SELECT * FROM chapters WHERE chapter_name LIKE ? OR chapter_number LIKE ?",
-          [searchTerm, searchTerm]
+          "SELECT ch.*, snippet(chapters_fts, -1, '<b>', '</b>', '...', 10) AS snippet FROM chapters_fts JOIN chapters ch ON chapters_fts.rowid = ch.rowid WHERE chapters_fts MATCH ?",
+          [term]
         ),
         this.queryDatabase(
           "dbKjvPure",
-          "SELECT * FROM kjv_pure WHERE verse_text LIKE ?",
-          [searchTerm]
+          "SELECT kp.*, snippet(kjv_pure_fts, 0, '<b>', '</b>', '...', 10) AS snippet FROM kjv_pure_fts JOIN kjv_pure kp ON kjv_pure_fts.rowid = kp.rowid WHERE kjv_pure_fts MATCH ?",
+          [term]
         ),
       ]);
 
