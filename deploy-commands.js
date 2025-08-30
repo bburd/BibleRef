@@ -3,6 +3,7 @@
 
 require("dotenv").config();
 const fs = require("fs");
+const { Routes } = require("discord-api-types/v10");
 const { fetchWithRetry } = require("./utils/http");
 
 const commands = [];
@@ -23,10 +24,15 @@ for (const file of commandFiles) {
       "Content-Type": "application/json",
       Authorization: `Bot ${process.env.TOKEN}`,
     };
-    const baseUrl = "https://discord.com/api/v9";
+    const baseUrl = "https://discord.com/api/v10";
 
     if (process.env.GUILD_ID) {
-      const url = `${baseUrl}/applications/${process.env.CLIENT_ID}/guilds/${process.env.GUILD_ID}/commands`;
+      const url =
+        baseUrl +
+        Routes.applicationGuildCommands(
+          process.env.CLIENT_ID,
+          process.env.GUILD_ID
+        );
       const res = await fetchWithRetry(url, {
         method: "PUT",
         headers,
@@ -39,7 +45,7 @@ for (const file of commandFiles) {
         "Successfully reloaded guild-specific application (/) commands."
       );
     } else {
-      const url = `${baseUrl}/applications/${process.env.CLIENT_ID}/commands`;
+      const url = baseUrl + Routes.applicationCommands(process.env.CLIENT_ID);
       const res = await fetchWithRetry(url, {
         method: "PUT",
         headers,
