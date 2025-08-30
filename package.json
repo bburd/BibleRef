@@ -1,10 +1,10 @@
 {
   "dependencies": {
+    "discord-api-types": "^0.38.22",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "moment-timezone": "^0.5.45",
     "node-cron": "^3.0.3",
-    "node-schedule": "^2.1.1",
     "sqlite3": "^5.1.7",
     "undici": "^7.15.0"
   },

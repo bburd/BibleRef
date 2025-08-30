@@ -1,10 +1,13 @@
 "use strict";
 
 class CommandQueue {
-  constructor() {
+  constructor({ batchSize = 1 } = {}) {
     this.queue = [];
     this.queueRunning = false;
     this.commands = {};
+    this.batchSize = batchSize;
+    this.drainPromise = null;
+    this.drainResolve = null;
   }
 
   publish(command, data) {
@@ -14,26 +17,50 @@ class CommandQueue {
         this.queue.push({ listener, data })
       );
       if (!this.queueRunning) {
-        this.runQueue();
+        this.queueRunning = true;
+        setImmediate(() => this.runQueue());
       }
     }
   }
 
   async runQueue() {
-    this.queueRunning = true;
-    while (this.queue.length) {
-      const { listener, data } = this.queue.shift();
-      try {
-        // Assuming listener can be an async function
-        await listener(data);
-        // Use setImmediate to prevent blocking the event loop
-        setImmediate(() => this.runQueue());
-      } catch (error) {
-        console.error("Error executing listener:", error);
+    while (this.queue.length && this.queueRunning) {
+      let count = 0;
+      while (count < this.batchSize && this.queue.length) {
+        const { listener, data } = this.queue.shift();
+        try {
+          await listener(data);
+        } catch (error) {
+          console.error("Error executing listener:", error);
+          this.queue.unshift({ listener, data });
+          setImmediate(() => this.runQueue());
+          return;
+        }
+        count++;
       }
-      return; // Exit after setting the next cycle to prevent synchronous loop
+      if (this.queue.length) {
+        setImmediate(() => this.runQueue());
+        return;
+      }
     }
     this.queueRunning = false;
+    if (this.drainResolve) {
+      this.drainResolve();
+      this.drainResolve = null;
+      this.drainPromise = null;
+    }
+  }
+
+  drain() {
+    if (!this.queue.length && !this.queueRunning) {
+      return Promise.resolve();
+    }
+    if (!this.drainPromise) {
+      this.drainPromise = new Promise((resolve) => {
+        this.drainResolve = resolve;
+      });
+    }
+    return this.drainPromise;
   }
 
   subscribe(command, listener) {
@@ -45,4 +72,4 @@ class CommandQueue {
 }
 
 const queue = new CommandQueue();
-module.exports = { queue };
+module.exports = { queue, CommandQueue };
