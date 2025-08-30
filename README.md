@@ -45,6 +45,16 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the f
 
 To get started with this bot, you will need to have a hosting solution for Node.js and the host will need to allow more than one sqlite database. Check the setup guide for details. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
 
+## Full-text Search
+
+SQLite FTS5 virtual tables power fast searches. Create and populate them with:
+
+```
+node db/migrate-fts.js
+```
+
+Run the script whenever the base databases change to rebuild the indexes. Triggers keep the FTS tables synchronized with `kjv` and `kjv_pure`.
+
 ## Commands:
 
     /brsearch Luke 1:1-3 or Luke - Retrieve all information matching search term.
