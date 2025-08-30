@@ -55,15 +55,17 @@ To get started with this bot, you will need to have a hosting solution for Node.
 
 ## Configuration:
 
-The bot uses a JSON configuration file (config.json) to store sensitive information securely. ***Do not send your config.json to anyone!!***
+The bot uses a .env configuration file (env.example) to store sensitive information securely. ***Do not send your .env to anyone!!***
 Here's a sample configuration file:
-### DO NOT COPY PASTE THE EXAMPLE BELOW. There is a config.json file that can be edited included.
+### DO NOT COPY PASTE THE EXAMPLE BELOW. There is a env.example file that can be edited included.
+## You will need to rename your file to .env
 ```
-{
-  "token": A09Kv834Dv908G32E4fnaEsv8T23TfvH8hf34DF8h, // Your bot token should not have the quotation marks ("")
-  "clientId": 123498741253, // Your client ID should not have the quotation marks ("")
-  "guildId": 123489075413 // Your guild ID should not have the quotation marks ("")
-}
+#These can be generated/reset in the Discord Developer Portal.
+TOKEN=YOUR_TOKEN
+CLIENT_ID=YOUR_CLIENTID
+# On Discord right click your server icon and copy Server ID
+GUILD_ID=YOUR_SERVERID
+# Rename this file to .env
 ```
 
 
