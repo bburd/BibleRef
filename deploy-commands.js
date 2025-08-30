@@ -3,7 +3,7 @@
 
 require("dotenv").config();
 const fs = require("fs");
-const { fetchWithRetry } = require("./httpClient");
+const { fetchWithRetry } = require("./utils/http");
 
 const commands = [];
 const commandFiles = fs
