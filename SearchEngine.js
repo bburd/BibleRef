@@ -1,8 +1,9 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const LRU = require("lru-cache");
 
 class SearchEngine {
-  constructor() {
+  constructor(options = {}) {
     this.databases = {
       dbDict: "strong_dict.db",
       dbPure: "strong_pure.db",
@@ -15,22 +16,75 @@ class SearchEngine {
     };
 
     this.dbConnections = {};
-    for (const key in this.databases) {
-      this.dbConnections[key] = new sqlite3.Database(
-        path.join(__dirname, this.databases[key]),
-        sqlite3.OPEN_READONLY,
-        (err) => {
-          if (err) console.error(`Error opening ${key} database:`, err.message);
+    this.idleTimeout = options.timeout || 5 * 60 * 1000; // 5 minutes default
+
+    this.statementCache = new LRU({
+      max: options.cacheSize || 100,
+      dispose: (stmt) => {
+        try {
+          stmt.finalize();
+        } catch (e) {}
+      },
+    });
+  }
+
+  cleanupConnections() {
+    const now = Date.now();
+    for (const key of Object.keys(this.dbConnections)) {
+      const info = this.dbConnections[key];
+      if (now - info.lastUsed > this.idleTimeout) {
+        info.db.close();
+        delete this.dbConnections[key];
+
+        for (const stmtKey of this.statementCache.keys()) {
+          if (stmtKey.startsWith(`${key}:`)) {
+            const stmt = this.statementCache.get(stmtKey);
+            if (stmt) {
+              try {
+                stmt.finalize();
+              } catch (e) {}
+            }
+            this.statementCache.delete(stmtKey);
+          }
         }
-      );
+      }
     }
   }
 
-  async queryDatabase(db, query, params) {
+  getConnection(dbKey) {
+    this.cleanupConnections();
+
+    let info = this.dbConnections[dbKey];
+    if (!info) {
+      const db = new sqlite3.Database(
+        path.join(__dirname, this.databases[dbKey]),
+        sqlite3.OPEN_READONLY,
+        (err) => {
+          if (err)
+            console.error(`Error opening ${dbKey} database:`, err.message);
+        }
+      );
+      info = { db, lastUsed: Date.now() };
+      this.dbConnections[dbKey] = info;
+    } else {
+      info.lastUsed = Date.now();
+    }
+    return info.db;
+  }
+
+  async queryDatabase(dbKey, query, params) {
+    const db = this.getConnection(dbKey);
+    const cacheKey = `${dbKey}:${query}`;
+    let stmt = this.statementCache.get(cacheKey);
+    if (!stmt) {
+      stmt = db.prepare(query);
+      this.statementCache.set(cacheKey, stmt);
+    }
+
     return new Promise((resolve, reject) => {
-      this.dbConnections[db].all(query, params, (err, rows) => {
+      stmt.all(params, (err, rows) => {
         if (err) {
-          console.error(`Error running query in ${db}:`, err.message);
+          console.error(`Error running query in ${dbKey}:`, err.message);
           reject(err);
         } else {
           resolve(rows);
