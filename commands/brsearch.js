@@ -6,31 +6,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
-const sqlite3 = require("sqlite3").verbose();
-const path = require("path");
-
-function setupDatabaseConnections() {
-  const dbPaths = {
-    bible_db: "../kjv_bible.db", // Updated path for your database
-  };
-  const connections = {};
-  Object.entries(dbPaths).forEach(([key, dbPath]) => {
-    connections[key] = new sqlite3.Database(
-      path.join(__dirname, dbPath),
-      sqlite3.OPEN_READONLY,
-      (err) => {
-        if (err) {
-          console.error(`Error opening database ${key}:`, err.message);
-        } else {
-          console.log(`Connected to the SQLite database: ${key}`);
-        }
-      }
-    );
-  });
-  return connections;
-}
-
-const dbConnections = setupDatabaseConnections();
+const SearchEngine = require("../SearchEngine");
+const searchEngine = new SearchEngine();
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -74,45 +51,24 @@ async function performSearch(query) {
         ? verses.split("-").map(Number)
         : [Number(verses), Number(verses)];
 
-      const rows = await queryDatabase(
-        dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ? ORDER BY verse`,
+      const rows = await searchEngine.queryDatabase(
+        "dbKjvPure",
+        `SELECT book_name, chapter, verse, text FROM kjv_pure WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ? ORDER BY verse`,
         [`${book}%`, chapter, startVerse, endVerse]
       );
 
       results.push(...rows);
-    } else if (isTextPattern.test(query)) {
-      const searchText = query.slice(1, -1); // Remove quotes
-      const rows = await queryDatabase(
-        dbConnections.bible_db,
-        `SELECT k.book_name, k.chapter, k.verse, k.text, snippet(kjv_fts, 1, '<b>', '</b>', '...', 10) AS snippet FROM kjv_fts JOIN kjv k ON kjv_fts.rowid = k.id WHERE kjv_fts MATCH ?`,
-        [`"${searchText}"`]
-      );
-
-      results.push(...rows);
     } else {
-      // Fallback to FTS keyword search across book names and verse text
-      const rows = await queryDatabase(
-        dbConnections.bible_db,
-        `SELECT k.book_name, k.chapter, k.verse, k.text, snippet(kjv_fts, 1, '<b>', '</b>', '...', 10) AS snippet FROM kjv_fts JOIN kjv k ON kjv_fts.rowid = k.id WHERE kjv_fts MATCH ?`,
-        [query]
-      );
-
+      const term = isTextPattern.test(query)
+        ? `"${query.slice(1, -1)}"`
+        : query;
+      const rows = await searchEngine.searchKjv(term);
       results.push(...rows);
     }
   } catch (error) {
     console.error("Error executing search:", error);
   }
   return results;
-}
-
-function queryDatabase(db, sql, params) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) reject(err);
-      else resolve(rows);
-    });
-  });
 }
 
 async function sendPaginatedResults(interaction, results, query) {

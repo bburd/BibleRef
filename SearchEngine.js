@@ -93,6 +93,14 @@ class SearchEngine {
     });
   }
 
+  async searchKjv(term) {
+    return this.queryDatabase(
+      "dbKjvPure",
+      "SELECT kp.book_name, kp.chapter, kp.verse, kp.text, snippet(kjv_pure_fts, 0, '<b>', '</b>', '...', 10) AS snippet FROM kjv_pure_fts JOIN kjv_pure kp ON kjv_pure_fts.rowid = kp.rowid WHERE kjv_pure_fts MATCH ?",
+      [term]
+    );
+  }
+
   async search(term) {
     try {
       const results = await Promise.all([
