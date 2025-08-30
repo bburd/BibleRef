@@ -24,8 +24,14 @@ fs.readdir(commandsPath, (err, files) => {
     .filter((file) => file.endsWith(".js"))
     .forEach((file) => {
       const filePath = path.join(commandsPath, file);
-      const command = require(filePath);
-      client.commands.set(command.data.name, command);
+      try {
+        const command = require(filePath);
+        client.commands.set(command.data.name, command);
+        // Optional debug log for successful loads
+        console.log(`Loaded command: ${file}`);
+      } catch (err) {
+        console.error(`Failed to load command ${file}:`, err);
+      }
     });
 });
 
