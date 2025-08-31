@@ -24,10 +24,7 @@ async function searchSmart(adapter, rawQuery, limit = 10) {
           const row = await adapter.getVerse(book, chapter, verses[0]);
           return row ? [row] : [];
         }
-        const start = Math.min(...verses);
-        const end = Math.max(...verses);
-        const subset = await adapter.getVersesSubset(book, chapter, start, end);
-        return subset.filter((r) => verses.includes(r.verse));
+        return adapter.getVersesSubset(book, chapter, verses);
       }
       return adapter.getChapter(book, chapter);
     }

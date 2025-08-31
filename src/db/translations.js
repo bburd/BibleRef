@@ -22,8 +22,8 @@ function createAdapter(translation = 'asv', options = {}) {
     .then(() => ({
       getVerse: (book, chapter, verse) => getVerse(state, book, chapter, verse),
       getChapter: (book, chapter) => getChapter(state, book, chapter),
-      getVersesSubset: (book, chapter, start, end) =>
-        getVersesSubset(state, book, chapter, start, end),
+      getVersesSubset: (book, chapter, verses) =>
+        getVersesSubset(state, book, chapter, verses),
       search: (q, limit) => search(state, q, limit),
       close: () => db.close(),
     }));
@@ -103,10 +103,12 @@ function getChapter(state, book, chapter) {
   return all(state.db, sql, [book, chapter]);
 }
 
-function getVersesSubset(state, book, chapter, startVerse, endVerse) {
+function getVersesSubset(state, book, chapter, verses) {
   const c = state.columns;
-  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? AND ${c.verse} BETWEEN ? AND ? ORDER BY ${c.verse}`;
-  return all(state.db, sql, [book, chapter, startVerse, endVerse]);
+  if (!Array.isArray(verses) || verses.length === 0) return Promise.resolve([]);
+  const placeholders = verses.map(() => '?').join(', ');
+  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? AND ${c.verse} IN (${placeholders}) ORDER BY ${c.verse}`;
+  return all(state.db, sql, [book, chapter, ...verses]);
 }
 
 function search(state, query, limit = 10) {
