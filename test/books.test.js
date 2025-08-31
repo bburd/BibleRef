@@ -13,3 +13,15 @@ test('nameToId tolerant parsing', () => {
   assert.equal(nameToId('Revelations'), 66);
   assert.equal(nameToId('i john'), 62);
 });
+
+test('nameToId standard abbreviations', () => {
+  const examples = {
+    jn: 43,
+    '1sa': 9,
+    phlm: 57,
+    rev: 66,
+  };
+  for (const [abbr, id] of Object.entries(examples)) {
+    assert.equal(nameToId(abbr), id);
+  }
+});
