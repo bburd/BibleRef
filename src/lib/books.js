@@ -217,5 +217,30 @@ function nameToId(name) {
   return matches.length === 1 ? matches[0][1] : null;
 }
 
-module.exports = { BOOKS, idToName, nameToId };
+function searchBooks(q, limit = 25) {
+  const query = (q || '').trim().toLowerCase();
+  if (!query) {
+    return BOOKS.slice(1, 1 + limit).map((name, idx) => ({ id: idx + 1, name }));
+  }
+
+  const results = [];
+  for (let id = 1; id < BOOKS.length; id++) {
+    const name = BOOKS[id];
+    const norm = name.toLowerCase();
+    let score;
+    if (norm.startsWith(query)) score = 0;
+    else if (norm.includes(query)) score = 1;
+    else continue;
+    results.push({ id, name, score });
+  }
+
+  results.sort((a, b) => {
+    if (a.score !== b.score) return a.score - b.score;
+    return a.name.localeCompare(b.name);
+  });
+
+  return results.slice(0, limit).map(({ id, name }) => ({ id, name }));
+}
+
+module.exports = { BOOKS, idToName, nameToId, searchBooks };
 
