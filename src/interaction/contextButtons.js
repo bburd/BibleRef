@@ -2,6 +2,7 @@ const { openReadingAdapter } = require('../db/openReading');
 const { createAdapter } = require('../db/translations');
 const { idToName } = require('../lib/books');
 const { unpack } = require('../ui/contextRow');
+const strongsDict = require('../../db/strongs-dictionary.json');
 
 const STRONGS_TRANSLATIONS = {
   kjv: 'kjv_strongs',
@@ -77,8 +78,23 @@ module.exports = async function handleContextButtons(interaction) {
 
       if (action === 'orig') {
         const bookName = idToName(book);
+        const lines = [];
+        const seen = new Set();
+        for (const [, code] of row.text.matchAll(/\{([GH]\d+)\}/g)) {
+          if (seen.has(code)) continue;
+          seen.add(code);
+          const entry = strongsDict[code];
+          if (entry) {
+            const parts = entry.gloss ? entry.gloss.split(',') : [];
+            const cleaned = parts.map((p) => p.replace(/^[+X]\s*/, '').trim());
+            const gloss = cleaned.find((p) => p.toLowerCase().includes('word')) || cleaned[0] || '';
+            lines.push(`${entry.lemma} — ${code} — ${entry.translit} — ${gloss}`);
+          } else {
+            lines.push(code);
+          }
+        }
         await interaction.reply({
-          content: `${bookName} ${chapter}:${verse} - ${row.text}`,
+          content: `${bookName} ${chapter}:${verse}\n${lines.join('\n')}`,
           ephemeral: true,
         });
         adapter.close();
