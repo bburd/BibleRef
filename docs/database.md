@@ -6,8 +6,8 @@ This project relies on several SQLite databases to store Bible text and referenc
 
 | File | Content table(s) | FTS5 table(s) | Notes |
 | --- | --- | --- | --- |
-| `kjv_bible.db` | `kjv` | `kjv_fts` | KJV verse text used by commands such as `/brverse`. |
-| `kjv_pure.db` | `kjv_pure` | `kjv_pure_fts` | Plain KJV verse data used for search and scheduling features. |
+| `kjv_strongs.sqlite` | `verses` | `verses_fts` | KJV verse text with Strong's numbers. |
+| `asvs.sqlite` | `verses` | `verses_fts` | American Standard Version verse text. |
 | `strong_dict.db` | `dictionary` | `dictionary_fts` | Strong's dictionary entries. |
 | `strong_pure.db` | `strong_pure` | `strong_pure_fts` | Strong's numbers with transliterations. |
 | `strong_words.db` | `strong_words` | `strong_words_fts` | Word concordance information. |
@@ -16,11 +16,8 @@ This project relies on several SQLite databases to store Bible text and referenc
 | `kjv_citations.db` | `kjv_citations` | `kjv_citations_fts` | Cross references between verses. |
 | `kjv_chapters.db` | `chapters` | `chapters_fts` | Chapter‑level text aggregates. |
 
-### `kjv_bible.db`
-The `kjv` table stores the base verse data with fields for the book name and text. An external‑content FTS5 index `kjv_fts` covers the `book_name` and `text` columns, with triggers to keep the index synchronized with changes【F:db/migrate-fts.js†L7-L18】【F:db/migrate-fts.js†L43-L63】【F:commands/brverse.js†L7-L26】.
-
-### `kjv_pure.db`
-The `kjv_pure` table mirrors KJV verse text and links to the `kjv_pure_fts` index for search operations【F:SearchEngine.js†L7-L16】【F:SearchEngine.js†L96-L101】【F:SearchEngine.js†L142-L145】.
+### `kjv_strongs.sqlite`
+The `verses` table stores the base verse data with fields for the book, chapter, verse, and text. An external‑content FTS5 index `verses_fts` covers the text column, with triggers to keep the index synchronized with changes【F:db/migrate-fts.js†L1-L66】.
 
 ### Other databases
 The search engine references additional SQLite databases, each paired with an FTS5 table that joins on `rowid` for full‑text lookups【F:SearchEngine.js†L7-L15】【F:SearchEngine.js†L106-L147】.

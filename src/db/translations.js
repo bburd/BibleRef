@@ -3,11 +3,11 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
 const FILES = {
-  kjv: 'kjv_strongs.sqlite',
-  asv: 'asvs.sqlite',
+  kjv_strongs: 'kjv_strongs.sqlite',
+  asvs: 'asvs.sqlite',
 };
 
-function openDatabase(translation = 'kjv', options = {}) {
+function createAdapter(translation = 'asvs', options = {}) {
   const file = FILES[translation.toLowerCase()];
   if (!file) throw new Error(`Unknown translation: ${translation}`);
   const dbPath = path.join(__dirname, '..', '..', 'db', file);
@@ -101,4 +101,4 @@ function all(db, sql, params) {
   });
 }
 
-module.exports = { openDatabase };
+module.exports = { createAdapter, openDatabase: createAdapter };

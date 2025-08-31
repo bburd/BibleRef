@@ -15,24 +15,29 @@ const client = new Client({
 
 client.commands = new Collection();
 client.buttons = new Collection();
-const commandsPath = path.join(__dirname, "commands");
 const buttonsPath = path.join(__dirname, "buttons");
+const commandDirs = [
+  path.join(__dirname, "commands"),
+  path.join(__dirname, "src", "commands"),
+];
 
-fs.readdir(commandsPath, (err, files) => {
-  if (err) return console.error(err);
-  files
-    .filter((file) => file.endsWith(".js"))
-    .forEach((file) => {
-      const filePath = path.join(commandsPath, file);
-      try {
-        const command = require(filePath);
-        client.commands.set(command.data.name, command);
-        // Optional debug log for successful loads
-        console.log(`Loaded command: ${file}`);
-      } catch (err) {
-        console.error(`Failed to load command ${file}:`, err);
-      }
-    });
+commandDirs.forEach((commandsPath) => {
+  if (!fs.existsSync(commandsPath)) return;
+  fs.readdir(commandsPath, (err, files) => {
+    if (err) return console.error(err);
+    files
+      .filter((file) => file.endsWith(".js"))
+      .forEach((file) => {
+        const filePath = path.join(commandsPath, file);
+        try {
+          const command = require(filePath);
+          client.commands.set(command.data.name, command);
+          console.log(`Loaded command: ${file}`);
+        } catch (err) {
+          console.error(`Failed to load command ${file}:`, err);
+        }
+      });
+  });
 });
 
 if (fs.existsSync(buttonsPath)) {
