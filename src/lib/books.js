@@ -1,4 +1,4 @@
-const books = [
+const BOOKS = [
   null,
   'Genesis',
   'Exodus',
@@ -68,39 +68,37 @@ const books = [
   'Revelation',
 ];
 
-function normalize(name) {
-  if (!name) return '';
-  const roman = { i: '1', ii: '2', iii: '3' };
-  let n = name.trim().toLowerCase();
-  n = n.replace(/^(i{1,3})\b/, (m) => roman[m] || m);
-  n = n.replace(/[^a-z0-9]/g, '');
-  return n;
-}
-
-const map = {};
-books.forEach((b, i) => {
-  if (!b) return;
-  map[normalize(b)] = i;
-});
-
-const aliases = {
+const ALIAS = {
   songofsongs: 22,
   canticles: 22,
   revelations: 66,
 };
-for (const [k, v] of Object.entries(aliases)) {
-  map[normalize(k)] = v;
+
+for (let i = 1; i < BOOKS.length; i++) {
+  const key = BOOKS[i].toLowerCase().replace(/[^a-z0-9]/g, '');
+  ALIAS[key] = i;
+}
+
+const ROMAN = { i: '1', ii: '2', iii: '3' };
+
+function clean(name) {
+  if (!name) return '';
+  let n = name.trim().toLowerCase();
+  n = n.replace(/^(i{1,3})\b/, (m) => ROMAN[m] || m);
+  return n.replace(/[^a-z0-9]/g, '');
 }
 
 function idToName(id) {
-  return books[id] || null;
+  return BOOKS[id] || null;
 }
 
 function nameToId(name) {
-  const norm = normalize(name);
-  if (map[norm]) return map[norm];
-  const matches = Object.entries(map).filter(([k]) => k.startsWith(norm) || norm.startsWith(k));
+  const norm = clean(name);
+  if (!norm) return null;
+  if (ALIAS[norm]) return ALIAS[norm];
+  const matches = Object.entries(ALIAS).filter(([k]) => k.startsWith(norm) || norm.startsWith(k));
   return matches.length === 1 ? matches[0][1] : null;
 }
 
-module.exports = { books, idToName, nameToId };
+module.exports = { BOOKS, idToName, nameToId };
+
