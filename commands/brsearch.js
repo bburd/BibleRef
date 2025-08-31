@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { idToName } = require('../src/lib/books');
-const { getUserTranslation } = require('../src/db/users');
-const search = require('../SearchEngine');
+const openReadingAdapter = require('../src/utils/openReadingAdapter');
+const searchSmart = require('../src/search/searchSmart');
 const { parseRef } = require('../src/utils/refs');
 
 module.exports = {
@@ -26,18 +26,15 @@ module.exports = {
 
   async execute(interaction) {
     const query = interaction.options.getString('query');
-    let translation = interaction.options.getString('translation');
-    if (!translation) {
-      translation = (await getUserTranslation(interaction.user.id)) || 'asv';
-    }
-
     const ref = parseRef(query);
     const isRange =
       ref && Array.isArray(ref.verses) && ref.verses.length > 1 && query.includes('-');
 
     await interaction.deferReply();
+    let adapter;
     try {
-      const results = await search(query, translation, 10);
+      ({ adapter } = await openReadingAdapter(interaction));
+      const results = await searchSmart(adapter, query, 10);
       if (!results.length) {
         if (isRange) {
           await interaction.editReply("That verse range doesn’t exist in this chapter.");
@@ -81,6 +78,8 @@ module.exports = {
     } catch (err) {
       console.error('Error performing search:', err);
       await interaction.editReply('There was an error executing this command.');
+    } finally {
+      if (adapter && adapter.close) adapter.close();
     }
   },
 };

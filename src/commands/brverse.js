@@ -1,8 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { nameToId, idToName } = require('../lib/books');
-const { openReadingAdapter } = require('../db/openReading');
+const openReadingAdapter = require('../utils/openReadingAdapter');
 const contextRow = require('../ui/contextRow');
-const { getUserTranslation } = require('../db/users');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -43,11 +42,7 @@ module.exports = {
     const bookArg = interaction.options.getString('book');
     const chapter = interaction.options.getInteger('chapter');
     const verseNum = interaction.options.getInteger('verse');
-    let translation = interaction.options.getString('translation');
 
-    if (!translation) {
-      translation = (await getUserTranslation(interaction.user.id)) || 'asv';
-    }
 
     let bookId = Number(bookArg);
     if (Number.isNaN(bookId)) {
@@ -59,8 +54,9 @@ module.exports = {
     }
 
     let adapter;
+    let translation;
     try {
-      adapter = await openReadingAdapter(translation);
+      ({ adapter, translation } = await openReadingAdapter(interaction));
       const result = await adapter.getVerse(bookId, chapter, verseNum);
       if (!result) {
         await interaction.reply('Verse not found.');

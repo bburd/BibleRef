@@ -1,6 +1,5 @@
 const { searchBooks } = require('../lib/books');
-const { openReadingAdapter } = require('../db/openReading');
-const { getUserTranslation } = require('../db/users');
+const openReadingAdapter = require('../utils/openReadingAdapter');
 
 async function getMaxChapter(adapter, bookId) {
   const c = adapter._cols;
@@ -46,11 +45,7 @@ module.exports = async function handleAutocomplete(interaction) {
       const bookId = Number(bookVal);
       if (!bookId) return interaction.respond([]);
 
-      let translation = interaction.options.getString('translation');
-      if (!translation) {
-        translation = (await getUserTranslation(interaction.user.id)) || 'asv';
-      }
-      adapter = await openReadingAdapter(translation);
+      ({ adapter } = await openReadingAdapter(interaction));
 
       const max = await getMaxChapter(adapter, bookId);
       const num = parseInt(value, 10);
@@ -65,11 +60,7 @@ module.exports = async function handleAutocomplete(interaction) {
       const chapter = Number(chapterVal);
       if (!bookId || !chapter) return interaction.respond([]);
 
-      let translation = interaction.options.getString('translation');
-      if (!translation) {
-        translation = (await getUserTranslation(interaction.user.id)) || 'asv';
-      }
-      adapter = await openReadingAdapter(translation);
+      ({ adapter } = await openReadingAdapter(interaction));
 
       const max = await getMaxVerse(adapter, bookId, chapter);
       const num = parseInt(value, 10);
