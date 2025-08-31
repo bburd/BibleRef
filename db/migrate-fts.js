@@ -2,8 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Databases to process
-const dbFiles = ['asv.sqlite', 'asvs.sqlite', 'kjv.sqlite', 'kjv_strongs.sqlite'];
+// All translation database files to migrate
+const dbFiles = [
+  'asv.sqlite',
+  'asvs.sqlite',
+  'kjv.sqlite',
+  'kjv_strongs.sqlite',
+];
 
 // Optionally rebuild the FTS index contents
 const rebuild = process.argv.includes('--rebuild');
