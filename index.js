@@ -8,6 +8,7 @@ const { setupPlanScheduler } = require("./scheduler/planScheduler");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
 const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
+const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 
 const client = new Client({
   intents: [
@@ -96,6 +97,8 @@ client.on("interactionCreate", async (interaction) => {
   } else if (interaction.isButton()) {
     const lexHandled = await handleLexButtons(interaction);
     if (lexHandled) return;
+    const searchHandled = await handleSearchButtons(interaction);
+    if (searchHandled) return;
     // Attempt to handle context-specific buttons before other handlers
     const contextHandled = await handleContextButtons(interaction);
     if (contextHandled) return;
