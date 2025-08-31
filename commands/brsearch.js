@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { idToName } = require('../src/lib/books');
 const { getUserTranslation } = require('../src/db/users');
 const search = require('../SearchEngine');
+const { parseRef } = require('../src/utils/refs');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -30,11 +31,19 @@ module.exports = {
       translation = (await getUserTranslation(interaction.user.id)) || 'asv';
     }
 
+    const ref = parseRef(query);
+    const isRange =
+      ref && Array.isArray(ref.verses) && ref.verses.length > 1 && query.includes('-');
+
     await interaction.deferReply();
     try {
       const results = await search(query, translation, 10);
       if (!results.length) {
-        await interaction.editReply('No results found.');
+        if (isRange) {
+          await interaction.editReply("That verse range doesn’t exist in this chapter.");
+        } else {
+          await interaction.editReply('No results found.');
+        }
         return;
       }
 
