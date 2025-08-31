@@ -7,7 +7,7 @@ const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CR
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS user_prefs (
     user_id TEXT PRIMARY KEY,
-    translation TEXT CHECK(translation IN ('asvs','kjv_strongs')),
+    translation TEXT CHECK(translation IN ('asv','asvs','kjv','kjv_strongs')),
     updated_at INTEGER
   )`);
 });

@@ -6,8 +6,10 @@ This project uses SQLite databases to store Bible text and user preferences. Eac
 
 | File | Content table | FTS5 table |
 | --- | --- | --- |
-| `kjv_strongs.sqlite` | `verses` | `verses_fts` |
+| `asv.sqlite`         | `verses` | `verses_fts` |
 | `asvs.sqlite`        | `verses` | `verses_fts` |
+| `kjv.sqlite`         | `verses` | `verses_fts` |
+| `kjv_strongs.sqlite` | `verses` | `verses_fts` |
 
 ### `verses` schema
 
@@ -30,7 +32,7 @@ Per-user translation choices are stored in `db/bot_settings.sqlite`:
 ```sql
 CREATE TABLE user_prefs (
   user_id TEXT PRIMARY KEY,
-  translation TEXT CHECK(translation IN ('asvs','kjv_strongs')),
+  translation TEXT CHECK(translation IN ('asv','asvs','kjv','kjv_strongs')),
   updated_at INTEGER
 );
 ```

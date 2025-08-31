@@ -5,9 +5,11 @@ const sqlite3 = require('sqlite3').verbose();
 const FILES = {
   kjv_strongs: 'kjv_strongs.sqlite',
   asvs: 'asvs.sqlite',
+  asv: 'asv.sqlite',
+  kjv: 'kjv.sqlite',
 };
 
-function createAdapter(translation = 'asvs', options = {}) {
+function createAdapter(translation = 'asv', options = {}) {
   const file = FILES[translation.toLowerCase()];
   if (!file) throw new Error(`Unknown translation: ${translation}`);
   const dbPath = path.join(__dirname, '..', '..', 'db', file);

@@ -11,15 +11,15 @@ module.exports = {
         .setDescription('Translation to use')
         .setRequired(true)
         .addChoices(
-          { name: 'ASV', value: 'asvs' },
-          { name: 'KJV Strongs', value: 'kjv_strongs' }
+          { name: 'ASV', value: 'asv' },
+          { name: 'KJV', value: 'kjv' }
         )
     ),
   async execute(interaction) {
     const translation = interaction.options.getString('set');
     try {
       await setUserTranslation(interaction.user.id, translation);
-      const pretty = translation === 'asvs' ? 'ASV' : 'KJV Strongs';
+      const pretty = translation === 'asv' ? 'ASV' : 'KJV';
       await interaction.reply({
         content: `Translation set to ${pretty}.`,
         ephemeral: true,
