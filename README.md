@@ -50,7 +50,7 @@ To get started with this bot, you will need to have a hosting solution for Node.
     /brsearch Luke 1:1-3 or Luke - Retrieve all information matching search term.
     /brpoints - View the top 10 users points standings.
     /brmypoints - View your current points standings.
-    /brdaily - View the daily verse.
+    /brdaily set|status|clear - Manage daily verse settings.
     /brtrivia - Start a Bible trivia game, optionally specifying a category.
 
 ## Configuration:

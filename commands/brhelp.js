@@ -12,7 +12,11 @@ module.exports = {
       .setTitle("List of Available Commands Below")
       .setDescription("Here are the commands you can use:")
       .addFields(
-        { name: "/brdaily", value: "Sends the daily verse.", inline: false },
+        {
+          name: "/brdaily",
+          value: "Manage daily verse settings (set, status, clear).",
+          inline: false,
+        },
         {
           name: "/brmypoints",
           value: "Displays your trivia points and ranking.",
