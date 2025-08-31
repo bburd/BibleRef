@@ -1,99 +1,67 @@
-const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const fs = require('fs');
+const sqlite3 = require('sqlite3').verbose();
 
-// Ensure the database directory exists
-const dbDir = path.join(__dirname, '..', '..', 'db');
-if (!fs.existsSync(dbDir)) {
-  fs.mkdirSync(dbDir, { recursive: true });
-}
-
-const dbPath = path.join(dbDir, 'bot_settings.sqlite');
-const db = new sqlite3.Database(dbPath);
+const dbPath = path.join(__dirname, '..', '..', 'db', 'bot_settings.sqlite');
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 
 db.serialize(() => {
-  db.run(
-    `CREATE TABLE IF NOT EXISTS daily_settings (
-      guild_id TEXT PRIMARY KEY,
-      channel_id TEXT NOT NULL,
-      time TEXT NOT NULL,
-      timezone TEXT NOT NULL
-    )`
-  );
+  db.run(`CREATE TABLE IF NOT EXISTS daily_settings (
+    guild_id TEXT PRIMARY KEY,
+    channel_id TEXT,
+    time TEXT,
+    timezone TEXT
+  )`);
 });
 
-function getAllDailySettings() {
-  return new Promise((resolve, reject) => {
-    db.all(
-      'SELECT guild_id, channel_id, time, timezone FROM daily_settings',
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows || []);
-      }
-    );
-  });
-}
-
-function getDailySettings(guildId) {
+function getSettings(guildId) {
   return new Promise((resolve, reject) => {
     db.get(
       'SELECT guild_id, channel_id, time, timezone FROM daily_settings WHERE guild_id = ?',
       [guildId],
       (err, row) => {
         if (err) reject(err);
-        else resolve(row);
+        else resolve(row || null);
       }
     );
   });
 }
 
-function setDailySettings(guildId, channelId, time, timezone) {
+function getAllSettings() {
   return new Promise((resolve, reject) => {
-    db.run(
-      `INSERT INTO daily_settings (guild_id, channel_id, time, timezone)
-       VALUES (?, ?, ?, ?)
-       ON CONFLICT(guild_id) DO UPDATE SET channel_id = excluded.channel_id, time = excluded.time, timezone = excluded.timezone`,
-      [guildId, channelId, time, timezone],
-      function (err) {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
+    db.all('SELECT guild_id, channel_id, time, timezone FROM daily_settings', (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows || []);
+    });
   });
 }
 
-function deleteDailySettings(guildId) {
+function setSettings(guildId, channelId, time, timezone) {
   return new Promise((resolve, reject) => {
-    db.run(
-      'DELETE FROM daily_settings WHERE guild_id = ?',
-      [guildId],
-      function (err) {
-        if (err) reject(err);
-        else resolve();
-      }
-    );
+    const sql = `INSERT INTO daily_settings (guild_id, channel_id, time, timezone)
+                 VALUES (?, ?, ?, ?)
+                 ON CONFLICT(guild_id) DO UPDATE SET
+                   channel_id = excluded.channel_id,
+                   time = excluded.time,
+                   timezone = excluded.timezone`;
+    db.run(sql, [guildId, channelId, time, timezone], (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
   });
 }
 
-function getOne(guildId) {
-  return getDailySettings(guildId);
-}
-
-function setOne(guildId, channelId, time, timezone) {
-  return setDailySettings(guildId, channelId, time, timezone);
-}
-
-function clearOne(guildId) {
-  return deleteDailySettings(guildId);
+function clearSettings(guildId) {
+  return new Promise((resolve, reject) => {
+    db.run('DELETE FROM daily_settings WHERE guild_id = ?', [guildId], (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
 }
 
 module.exports = {
-  getAllDailySettings,
-  getDailySettings,
-  setDailySettings,
-  deleteDailySettings,
-  getOne,
-  setOne,
-  clearOne,
+  getSettings,
+  getAllSettings,
+  setSettings,
+  clearSettings,
 };
-

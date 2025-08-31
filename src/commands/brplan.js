@@ -1,106 +1,75 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const moment = require('moment-timezone');
-const {
-  getPlanDef,
-  getUserPlan,
-  createUserPlan,
-  advanceDay,
-  updateCompletion,
-  logCompletion,
-} = require('../db/plan');
+const { startPlan, completeDay, getPlanDef, updateLastNotified } = require('../db/plans');
+const planDefs = require('../../plan_defs.json');
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('brplan')
-    .setDescription('Manage Bible reading plans')
+    .setDescription('Manage reading plans')
     .addSubcommand((sub) =>
       sub
         .setName('start')
         .setDescription('Start a reading plan')
-        .addStringOption((opt) =>
-          opt.setName('plan').setDescription('Plan ID').setRequired(true)
-        )
-        .addStringOption((opt) =>
-          opt
-            .setName('timezone')
-            .setDescription('Your IANA timezone, e.g., America/New_York')
-            .setRequired(true)
-        )
+        .addStringOption((opt) => {
+          opt.setName('plan').setDescription('Plan ID').setRequired(true);
+          planDefs.forEach((p) => opt.addChoices({ name: p.name, value: p.id }));
+          return opt;
+        })
     )
     .addSubcommand((sub) =>
-      sub.setName('complete').setDescription("Mark today's reading complete")
-    )
-    .addSubcommand((sub) =>
-      sub.setName('status').setDescription('Show your plan status')
+      sub.setName('complete').setDescription("Mark today's reading as complete")
     ),
-
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const userId = interaction.user.id;
-
     if (sub === 'start') {
       const planId = interaction.options.getString('plan');
-      const timezone = interaction.options.getString('timezone');
-      const def = await getPlanDef(planId);
-      if (!def) {
+      try {
+        await startPlan(userId, planId);
+        const plan = await getPlanDef(planId);
+        const reading = plan.days[0];
+        try {
+          await interaction.user.send(`Day 1: ${reading}`);
+          await updateLastNotified(userId, today());
+        } catch (err) {
+          console.error('Failed to send DM:', err);
+        }
         await interaction.reply({
-          content: 'Unknown plan.',
+          content: `Started plan **${plan.name}**. First reading sent via DM.`,
           ephemeral: true,
         });
-        return;
+      } catch (err) {
+        await interaction.reply({ content: 'Failed to start plan.', ephemeral: true });
       }
-      await createUserPlan(userId, planId, timezone);
-      const today = moment().tz(timezone).format('YYYY-MM-DD');
-      const reading = def.days[0];
-      await interaction.user
-        .send(`Day 1: ${reading}`)
-        .catch(() => {});
-      await advanceDay(userId, 2, today);
-      await interaction.reply({
-        content: `Started plan "${def.name}". Check your DMs for day 1!`,
-        ephemeral: true,
-      });
     } else if (sub === 'complete') {
-      const plan = await getUserPlan(userId);
-      if (!plan) {
+      try {
+        const res = await completeDay(userId);
+        if (res.nextReading) {
+          try {
+            await interaction.user.send(`Day ${res.nextDay}: ${res.nextReading}`);
+            await updateLastNotified(userId, today());
+          } catch (err) {
+            console.error('Failed to send DM:', err);
+          }
+        } else {
+          try {
+            await interaction.user.send('Plan completed!');
+            await updateLastNotified(userId, today());
+          } catch (err) {
+            console.error('Failed to send DM:', err);
+          }
+        }
         await interaction.reply({
-          content: 'You are not enrolled in a plan.',
+          content: `Day ${res.nextDay - 1} completed. Current streak: ${res.streak}`,
           ephemeral: true,
         });
-        return;
+      } catch (err) {
+        await interaction.reply({ content: err.message, ephemeral: true });
       }
-      const today = moment().tz(plan.timezone).format('YYYY-MM-DD');
-      if (plan.last_completed === today) {
-        await interaction.reply({
-          content: "You've already marked today's reading complete.",
-          ephemeral: true,
-        });
-        return;
-      }
-      const yesterday = moment(today).subtract(1, 'day').format('YYYY-MM-DD');
-      const streak = plan.last_completed === yesterday ? plan.streak + 1 : 1;
-      const dayCompleted = plan.current_day - 1;
-      await logCompletion(userId, plan.plan_id, dayCompleted);
-      await updateCompletion(userId, streak, today);
-      await interaction.reply({
-        content: `Marked day ${dayCompleted} complete. Current streak: ${streak}.`,
-        ephemeral: true,
-      });
-    } else if (sub === 'status') {
-      const plan = await getUserPlan(userId);
-      if (!plan) {
-        await interaction.reply({
-          content: 'You are not enrolled in a plan.',
-          ephemeral: true,
-        });
-        return;
-      }
-      const def = await getPlanDef(plan.plan_id);
-      const day = plan.current_day - 1;
-      await interaction.reply({
-        content: `Plan: ${def?.name || plan.plan_id}\nDay: ${day}\nStreak: ${plan.streak}`,
-        ephemeral: true,
-      });
     }
   },
 };

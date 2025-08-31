@@ -67,7 +67,7 @@ Run the script whenever the translation databases change to keep search results 
     /brsearch query - Search for verses containing the query.
     /brpoints - View the top 10 users points standings.
     /brmypoints - View your current points standings.
-    /brdaily set|status|clear - Manage daily verse settings.
+    /brdaily - View the daily verse.
     /brtrivia - Start a Bible trivia game, optionally specifying a category.
     /brtranslation set:<translation> - Set your preferred Bible translation (ASV or KJV Strongs).
 

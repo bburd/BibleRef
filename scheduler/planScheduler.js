@@ -1,43 +1,47 @@
 const cron = require('node-cron');
-const moment = require('moment-timezone');
 const {
   getAllUserPlans,
   getPlanDef,
-  advanceDay,
-  deleteUserPlan,
-} = require('../src/db/plan');
+  updateLastNotified,
+  resetStreak,
+} = require('../src/db/plans');
 
-let task = null;
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function yesterday() {
+  return new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+}
+
+let job;
+
+async function checkPlans(client) {
+  const plans = await getAllUserPlans();
+  const todayStr = today();
+  const yest = yesterday();
+  for (const p of plans) {
+    if (p.last_notified === todayStr) continue;
+    const plan = await getPlanDef(p.plan_id);
+    const reading = plan.days[p.day];
+    if (!reading) continue;
+    try {
+      const user = await client.users.fetch(p.user_id);
+      await user.send(`Day ${p.day + 1}: ${reading}`);
+      await updateLastNotified(p.user_id, todayStr);
+      if (p.last_completed !== yest) {
+        await resetStreak(p.user_id);
+      }
+    } catch (err) {
+      console.error('Failed to DM reading:', err);
+    }
+  }
+}
 
 function setupPlanScheduler(client) {
-  if (task) task.stop();
-  task = cron.schedule('0 * * * *', async () => {
-    let plans;
-    try {
-      plans = await getAllUserPlans();
-    } catch (err) {
-      console.error('Failed to load user plans:', err);
-      return;
-    }
-    for (const up of plans) {
-      const today = moment().tz(up.timezone).format('YYYY-MM-DD');
-      if (up.last_dm === today) continue;
-      const def = await getPlanDef(up.plan_id);
-      if (!def) continue;
-      const dayIndex = up.current_day - 1;
-      const user = await client.users.fetch(up.user_id).catch(() => null);
-      if (!user) continue;
-      if (dayIndex >= def.days.length) {
-        await user.send(`Reading plan "${def.name}" complete!`).catch(() => {});
-        await deleteUserPlan(up.user_id);
-        continue;
-      }
-      const reading = def.days[dayIndex];
-      await user
-        .send(`Day ${up.current_day}: ${reading}`)
-        .catch(() => {});
-      await advanceDay(up.user_id, up.current_day + 1, today);
-    }
+  if (job) job.stop();
+  job = cron.schedule('0 * * * *', () => {
+    checkPlans(client);
   });
 }
 

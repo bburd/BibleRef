@@ -3,7 +3,14 @@
 
 require("dotenv").config();
 const fs = require("fs");
-const path = require("path");
+const { Routes } = require("discord-api-types/v10");
+const { fetchWithRetry } = require("./utils/http");
+
+const commands = [];
+const commandDirs = ["./commands", "./src/commands"];
+
+for (const dir of commandDirs) {
+  if (!fs.existsSync(dir)) continue;
   const commandFiles = fs
     .readdirSync(dir)
     .filter((file) => file.endsWith(".js"));

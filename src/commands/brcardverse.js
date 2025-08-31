@@ -1,81 +1,137 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const { createCanvas, GlobalFonts } = require("@napi-rs/canvas");
-const path = require("path");
-const { fetch } = require("undici");
-const wrapText = require("../../utils/wrapText");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { AttachmentBuilder } = require('discord.js');
+const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
+const path = require('path');
+const { nameToId, idToName } = require('../lib/books');
+const openReadingAdapter = require('../utils/openReadingAdapter');
+const contextRow = require('../ui/contextRow');
 
-GlobalFonts.registerFromPath(
-  path.join(__dirname, "../../assets/Inter-Regular.ttf"),
-  "Inter"
-);
+// Register font
+const fontPath = path.join(__dirname, '..', '..', 'assets', 'Inter-Regular.ttf');
+try {
+  GlobalFonts.registerFromPath(fontPath, 'Inter');
+} catch (e) {
+  // ignore if font already registered
+}
 
-async function openReadingAdapter(book, chapter, verse) {
-  const ref = encodeURIComponent(`${book} ${chapter}:${verse}`);
-  const url = `https://bible-api.com/${ref}?translation=kjv`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch verse: ${res.status}`);
-  const data = await res.json();
-  return data.text.trim();
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (const word of words) {
+    const testLine = line + word + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      line = word + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) {
+    ctx.fillText(line, x, y);
+  }
+  return y + lineHeight;
 }
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("brcardverse")
-    .setDescription("Create a verse card image")
-    .addStringOption((opt) =>
-      opt
-        .setName("reference")
-        .setDescription("Verse reference, e.g., John 3:16")
+    .setName('brcardverse')
+    .setDescription('Fetch a verse from the Bible and render it on a card')
+    .addStringOption(option =>
+      option
+        .setName('book')
+        .setDescription('Book of the Bible')
         .setRequired(true)
+        .setAutocomplete(true)
+    )
+    .addIntegerOption(option =>
+      option
+        .setName('chapter')
+        .setDescription('Chapter number')
+        .setRequired(true)
+        .setAutocomplete(true)
+    )
+    .addIntegerOption(option =>
+      option
+        .setName('verse')
+        .setDescription('Verse number')
+        .setRequired(true)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('translation')
+        .setDescription('Bible translation')
+        .addChoices(
+          { name: 'ASV', value: 'asv' },
+          { name: 'KJV', value: 'kjv' }
+        )
     ),
+
   async execute(interaction) {
-    const refInput = interaction.options.getString("reference");
-    const match = refInput.match(/^([1-3]?\s?[A-Za-z]+)\s+(\d+):(\d+)$/);
-    if (!match) {
-      await interaction.reply({
-        content: "Invalid reference format. Use Book Chapter:Verse.",
-        ephemeral: true,
-      });
+    const bookArg = interaction.options.getString('book');
+    const chapter = interaction.options.getInteger('chapter');
+    const verseNum = interaction.options.getInteger('verse');
+
+    let bookId = Number(bookArg);
+    if (Number.isNaN(bookId)) {
+      bookId = nameToId(bookArg);
+    }
+    if (!bookId) {
+      await interaction.reply({ content: 'Unknown book.', ephemeral: true });
       return;
     }
-    const [, book, chapter, verse] = match;
-    let text;
+
+    let adapter;
+    let translation;
     try {
-      text = await openReadingAdapter(book, chapter, verse);
-    } catch (err) {
-      console.error(err);
-      await interaction.reply({
-        content: "Failed to fetch verse.",
-        ephemeral: true,
+      ({ adapter, translation } = await openReadingAdapter(interaction));
+      const result = await adapter.getVerse(bookId, chapter, verseNum);
+      if (!result) {
+        await interaction.reply('Verse not found.');
+        return;
+      }
+      const bookName = idToName(result.book);
+      const verseText = result.text;
+
+      const width = 1200;
+      const height = 630;
+      const canvas = createCanvas(width, height);
+      const ctx = canvas.getContext('2d');
+
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, '#4e54c8');
+      gradient.addColorStop(1, '#8f94fb');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      const margin = 60;
+      const maxWidth = width - margin * 2;
+      ctx.fillStyle = '#ffffff';
+      ctx.textBaseline = 'top';
+      ctx.font = "48px 'Inter'";
+      const y = drawWrappedText(ctx, verseText, margin, margin, maxWidth, 60);
+
+      ctx.font = "bold 36px 'Inter'";
+      const refText = `${bookName} ${result.chapter}:${result.verse} (${translation.toUpperCase()})`;
+      ctx.fillText(refText, margin, height - margin - 36);
+
+      const buffer = canvas.toBuffer('image/png');
+      const attachment = new AttachmentBuilder(buffer, { name: 'verse.png' });
+      const components = contextRow.build({
+        book: result.book,
+        chapter: result.chapter,
+        verse: result.verse,
+        translation,
       });
-      return;
+      await interaction.reply({ files: [attachment], components });
+    } catch (err) {
+      console.error('Error fetching verse:', err);
+      await interaction.reply('There was an error fetching the verse.');
+    } finally {
+      if (adapter && adapter.close) adapter.close();
     }
-
-    const width = 1200;
-    const height = 628;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
-    ctx.fillStyle = "#000000";
-    ctx.font = "48px Inter";
-
-    const maxWidth = width - 80;
-    const lines = wrapText(ctx, text, maxWidth);
-    const lineHeight = 60;
-    let y = 100;
-    lines.forEach((line) => {
-      ctx.fillText(line, 40, y);
-      y += lineHeight;
-    });
-
-    ctx.font = "40px Inter";
-    ctx.fillText(`${book} ${chapter}:${verse}`, 40, height - 80);
-
-    const buffer = await canvas.encode("png");
-    await interaction.reply({
-      files: [{ attachment: buffer, name: "verse.png" }],
-    });
   },
 };
+

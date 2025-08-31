@@ -4,9 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
-
+const { setupPlanScheduler } = require("./scheduler/planScheduler");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
+const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
+const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 
 const client = new Client({
   intents: [
@@ -41,7 +43,6 @@ commandDirs.forEach((commandsPath) => {
         }
       });
   });
-
 });
 
 if (fs.existsSync(buttonsPath)) {
@@ -62,8 +63,8 @@ if (fs.existsSync(buttonsPath)) {
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
-  await setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
-  await setupPlanScheduler(client);
+  setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
+  setupPlanScheduler(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -94,6 +95,10 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   } else if (interaction.isButton()) {
+    const lexHandled = await handleLexButtons(interaction);
+    if (lexHandled) return;
+    const searchHandled = await handleSearchButtons(interaction);
+    if (searchHandled) return;
     // Attempt to handle context-specific buttons before other handlers
     const contextHandled = await handleContextButtons(interaction);
     if (contextHandled) return;

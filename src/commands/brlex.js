@@ -1,241 +1,149 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-const {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} = require("discord.js");
-const sqlite3 = require("sqlite3").verbose();
-const fs = require("fs");
-const path = require("path");
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { createAdapter } = require('../db/translations');
+const { idToName } = require('../lib/books');
+const strongsDict = require('../../db/strongs-dictionary.json');
 
-// Lazy-load Strong's dictionary
-let lexiconCache = null;
-function loadLexicon() {
-  if (lexiconCache) return lexiconCache;
+const PAGE_SIZE = 5;
+
+function encode(data) {
+  return Buffer.from(JSON.stringify(data))
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function decode(str) {
   try {
-    const file = path.join(__dirname, "../../db/strongs-dictionary.json");
-    const data = fs.readFileSync(file, "utf8");
-    lexiconCache = JSON.parse(data);
-  } catch (err) {
-    console.error("Failed to load Strong's dictionary:", err.message);
-    lexiconCache = {};
-  }
-  return lexiconCache;
-}
-
-function getLexEntry(strong) {
-  const dict = loadLexicon();
-  const key = strong.toUpperCase();
-  return dict[key] || null;
-}
-
-function searchLexicon(query) {
-  const dict = loadLexicon();
-  const q = query.toLowerCase();
-  const results = [];
-  for (const [id, entry] of Object.entries(dict)) {
-    const text = [id, entry.lemma, entry.translit, entry.definition]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
-    if (text.includes(q)) {
-      results.push({ id, lemma: entry.lemma, gloss: entry.definition });
-    }
-    if (results.length >= 10) break;
-  }
-  return results;
-}
-
-function packState(state) {
-  return Buffer.from(JSON.stringify(state)).toString("base64");
-}
-
-function unpackState(str) {
-  try {
-    return JSON.parse(Buffer.from(str, "base64").toString());
-  } catch (err) {
+    let b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    const json = Buffer.from(b64, 'base64').toString('utf8');
+    return JSON.parse(json);
+  } catch (e) {
     return null;
   }
 }
 
-function findVersesByStrong(strong, offset = 0, limit = 5) {
-  const isGreek = strong.toUpperCase().startsWith("G");
-  const dbFile = path.join(
-    __dirname,
-    `../../db/strongs-${isGreek ? "greek" : "hebrew"}.db`
-  );
-
-  return new Promise((resolve) => {
-    if (!fs.existsSync(dbFile)) {
-      resolve({ verses: [], total: 0 });
-      return;
-    }
-
-    const db = new sqlite3.Database(dbFile, sqlite3.OPEN_READONLY);
-    const verseSql =
-      "SELECT book, chapter, verse, text FROM verses WHERE strong = ? LIMIT ? OFFSET ?";
-    const countSql =
-      "SELECT COUNT(*) as count FROM verses WHERE strong = ?";
-
-    db.all(verseSql, [strong, limit, offset], (err, verseRows) => {
-      if (err) {
-        console.error("Error fetching verses:", err.message);
-        db.close();
-        resolve({ verses: [], total: 0 });
-        return;
-      }
-      db.get(countSql, [strong], (err2, countRow) => {
-        db.close();
-        if (err2) {
-          console.error("Error counting verses:", err2.message);
-          resolve({ verses: verseRows || [], total: 0 });
-        } else {
-          resolve({ verses: verseRows || [], total: countRow.count || 0 });
-        }
-      });
+async function findVersesByStrong(translation, strong, page = 0, pageSize = PAGE_SIZE) {
+  const adapter = await createAdapter(translation);
+  const c = adapter._cols;
+  const offset = page * pageSize;
+  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.text} LIKE ? ORDER BY ${c.book}, ${c.chapter}, ${c.verse} LIMIT ? OFFSET ?`;
+  const pattern = `%{${strong}}%`;
+  const rows = await new Promise((resolve, reject) => {
+    adapter._db.all(sql, [pattern, pageSize + 1, offset], (err, res) => {
+      if (err) reject(err);
+      else resolve(res);
     });
   });
+  adapter.close();
+  return rows;
 }
 
-function lexEmbed(strong, entry, verses, offset, total) {
-  const embed = new EmbedBuilder()
-    .setTitle(`${strong} - ${entry?.lemma || "Unknown"}`)
-    .setColor("#0099ff");
+function cleanText(text) {
+  return text.replace(/\{[^}]+\}/g, '').trim();
+}
 
-  if (entry?.translit)
-    embed.addFields({ name: "Transliteration", value: entry.translit, inline: true });
-  if (entry?.derivation)
-    embed.addFields({ name: "Derivation", value: entry.derivation, inline: false });
-  if (entry?.definition)
-    embed.addFields({ name: "Definition", value: entry.definition, inline: false });
-
-  verses.forEach((v) => {
-    const ref = `${v.book} ${v.chapter}:${v.verse}`;
-    embed.addFields({ name: ref, value: v.text });
+function lexEmbed(strong, entry, verses, page) {
+  const embed = new EmbedBuilder();
+  embed.setTitle(strong);
+  if (entry) {
+    const parts = [];
+    if (entry.lemma) parts.push(entry.lemma);
+    if (entry.translit) parts.push(entry.translit);
+    if (entry.gloss) parts.push(entry.gloss);
+    embed.setDescription(parts.join(' — '));
+  } else {
+    embed.setDescription('No dictionary entry found.');
+  }
+  verses.slice(0, PAGE_SIZE).forEach((v) => {
+    const ref = `${idToName(v.book)} ${v.chapter}:${v.verse}`;
+    embed.addFields({ name: ref, value: cleanText(v.text) });
   });
-  if (verses.length)
-    embed.setFooter({
-      text: `Verses ${offset + 1}-${offset + verses.length} of ${total}`,
-    });
-
+  embed.setFooter({ text: `Page ${page + 1}` });
   return embed;
 }
 
-async function handleButtons(interaction) {
-  const [action, payload] = interaction.customId.split(":");
-  if (!action.startsWith("brlex_")) return false;
-  const state = unpackState(payload);
-  if (!state || !state.strong) {
-    await interaction.reply({
-      content: "Invalid button state.",
-      ephemeral: true,
-    });
-    return true;
+async function commandExecute(interaction) {
+  const strong = (interaction.options.getString('strong') || '').toUpperCase();
+  const translationOpt = interaction.options.getString('translation') || 'kjv';
+  const translation = translationOpt === 'asv' ? 'asvs' : 'kjv_strongs';
+
+  const entry = strongsDict[strong];
+  const rows = await findVersesByStrong(translation, strong, 0, PAGE_SIZE);
+  const embed = lexEmbed(strong, entry, rows, 0);
+  const components = [];
+  if (rows.length > PAGE_SIZE) {
+    const payload = encode({ strong, translation, page: 0 });
+    const next = new ButtonBuilder()
+      .setCustomId(`brlex:next:${payload}`)
+      .setLabel('Next')
+      .setStyle(ButtonStyle.Secondary);
+    components.push(new ActionRowBuilder().addComponents(next));
   }
-  const { strong, offset = 0 } = state;
-  const entry = getLexEntry(strong);
-  const { verses, total } = await findVersesByStrong(strong, offset, 5);
-  const embed = lexEmbed(strong, entry, verses, offset, total);
+  await interaction.reply({ embeds: [embed], components });
+}
 
-  const prevState = packState({ strong, offset: Math.max(0, offset - 5) });
-  const nextState = packState({ strong, offset: offset + 5 });
-
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`brlex_prev:${prevState}`)
-      .setLabel("Prev")
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(offset <= 0),
-    new ButtonBuilder()
-      .setCustomId(`brlex_next:${nextState}`)
-      .setLabel("Next")
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(offset + verses.length >= total)
-  );
-
-  await interaction.update({ embeds: [embed], components: [row] });
+async function handleButtons(interaction) {
+  const id = interaction.customId || '';
+  if (!id.startsWith('brlex:')) return false;
+  const [, action, payload] = id.split(':');
+  const data = decode(payload);
+  if (!data) return false;
+  let { strong, translation, page } = data;
+  const entry = strongsDict[strong];
+  if (action === 'next') page += 1;
+  else if (action === 'prev') page -= 1;
+  if (page < 0) page = 0;
+  const rows = await findVersesByStrong(translation, strong, page, PAGE_SIZE);
+  const embed = lexEmbed(strong, entry, rows, page);
+  const buttons = [];
+  if (page > 0) {
+    const prevPayload = encode({ strong, translation, page: page - 1 });
+    buttons.push(
+      new ButtonBuilder()
+        .setCustomId(`brlex:prev:${prevPayload}`)
+        .setLabel('Prev')
+        .setStyle(ButtonStyle.Secondary)
+    );
+  }
+  if (rows.length > PAGE_SIZE) {
+    const nextPayload = encode({ strong, translation, page: page + 1 });
+    buttons.push(
+      new ButtonBuilder()
+        .setCustomId(`brlex:next:${nextPayload}`)
+        .setLabel('Next')
+        .setStyle(ButtonStyle.Secondary)
+    );
+  }
+  const components = buttons.length ? [new ActionRowBuilder().addComponents(buttons)] : [];
+  await interaction.update({ embeds: [embed], components });
   return true;
 }
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("brlex")
-    .setDescription("Lookup Strong's lexicon")
-    .addSubcommand((sub) =>
-      sub
-        .setName("id")
-        .setDescription("Lookup by Strong's number")
-        .addStringOption((opt) =>
-          opt
-            .setName("strong")
-            .setDescription("Strong's number, e.g., G25")
-            .setRequired(true)
-        )
+    .setName('brlex')
+    .setDescription("Look up Strong's entries and related verses")
+    .addStringOption((opt) =>
+      opt
+        .setName('strong')
+        .setDescription("Strong's number, e.g., G3056")
+        .setRequired(true)
     )
-    .addSubcommand((sub) =>
-      sub
-        .setName("search")
-        .setDescription("Search Strong's entries")
-        .addStringOption((opt) =>
-          opt
-            .setName("query")
-            .setDescription("Search text")
-            .setRequired(true)
+    .addStringOption((opt) =>
+      opt
+        .setName('translation')
+        .setDescription('Bible translation')
+        .addChoices(
+          { name: 'ASV', value: 'asv' },
+          { name: 'KJV', value: 'kjv' }
         )
     ),
-
-  async execute(interaction) {
-    const sub = interaction.options.getSubcommand();
-    if (sub === "id") {
-      const strong = interaction.options.getString("strong");
-      const entry = getLexEntry(strong);
-      if (!entry) {
-        await interaction.reply({
-          content: `No entry found for ${strong}.`,
-          ephemeral: true,
-        });
-        return;
-      }
-      const { verses, total } = await findVersesByStrong(strong, 0, 5);
-      const embed = lexEmbed(strong, entry, verses, 0, total);
-
-      const prevState = packState({ strong, offset: 0 });
-      const nextState = packState({ strong, offset: 5 });
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`brlex_prev:${prevState}`)
-          .setLabel("Prev")
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(true),
-        new ButtonBuilder()
-          .setCustomId(`brlex_next:${nextState}`)
-          .setLabel("Next")
-          .setStyle(ButtonStyle.Primary)
-          .setDisabled(verses.length >= total)
-      );
-
-      await interaction.reply({ embeds: [embed], components: [row] });
-    } else if (sub === "search") {
-      const query = interaction.options.getString("query");
-      const results = searchLexicon(query);
-      if (!results.length) {
-        await interaction.reply({
-          content: "No matches found.",
-          ephemeral: true,
-        });
-        return;
-      }
-      const lines = results.map(
-        (r) => `${r.id} - ${r.lemma || ""}${r.gloss ? ` - ${r.gloss}` : ""}`
-      );
-      const embed = new EmbedBuilder()
-        .setColor("#0099ff")
-        .setTitle(`Search results for "${query}"`)
-        .setDescription(lines.join("\n"));
-      await interaction.reply({ embeds: [embed], ephemeral: true });
-    }
-  },
+  execute: commandExecute,
   handleButtons,
+  findVersesByStrong,
+  lexEmbed,
 };
 

@@ -11,39 +11,55 @@ module.exports = {
       .setColor("#0099ff")
       .setTitle("List of Available Commands Below")
       .setDescription("Here are the commands you can use:")
-      .addFields(
-        {
-          name: "/brdaily",
-          value: "Manage daily verse settings (set, status, clear).",
-          inline: false,
-        },
-        {
-          name: "/brmypoints",
-          value: "Displays your trivia points and ranking.",
-          inline: false,
-        },
-        {
-          name: "/brpoints",
-          value: "Displays the trivia points standings for the top 10 players.",
-          inline: false,
-        },
-        {
-          name: "/brsearch",
-          value: "Searches the King James Bible.",
-          inline: false,
-        },
-        {
-          name: "/brtrivia",
-          value:
-            "Starts a Bible trivia game with the option of choosing a category.",
-          inline: false,
-        },
-        {
-          name: "/brverse",
-          value: "Sends a random verse from the King James Bible.",
-          inline: false,
-        }
-      )
+        .addFields(
+          { name: "/brdaily", value: "Sends the daily verse.", inline: false },
+          {
+            name: "/brmypoints",
+            value: "Displays your trivia points and ranking.",
+            inline: false,
+          },
+          {
+            name: "/brpoints",
+            value: "Displays the trivia points standings for the top 10 players.",
+            inline: false,
+          },
+          {
+            name: "/brsearch",
+            value: "Searches the King James Bible.",
+            inline: false,
+          },
+          {
+            name: "/brtrivia",
+            value:
+              "Starts a Bible trivia game with the option of choosing a category.",
+            inline: false,
+          },
+          {
+            name: "/brverse",
+            value: "Fetch a verse from the Bible.",
+            inline: false,
+          },
+          {
+            name: "/brtranslation",
+            value: "Set your preferred Bible translation.",
+            inline: false,
+          },
+          {
+            name: "/brplan",
+            value: "Manage reading plans.",
+            inline: false,
+          },
+          {
+            name: "/brcardverse",
+            value: "Render a verse on a shareable card.",
+            inline: false,
+          },
+          {
+            name: "/brlex",
+            value: "Look up Strong's entries and verses.",
+            inline: false
+          }
+        )
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed] });
