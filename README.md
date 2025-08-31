@@ -47,31 +47,17 @@ To get started with this bot, you will need to have a hosting solution for Node.
 
 ## Full-text Search
 
-SQLite FTS5 virtual tables power fast searches. Create and populate them with:
+SQLite FTS5 virtual tables power fast verse searches. Create or rebuild the `verses_fts` indexes with:
 
 ```
 node db/migrate-fts.js
 ```
 
-Run the script whenever the base databases change to rebuild the indexes. Triggers keep the FTS tables synchronized with `kjv` and `kjv_pure`.
-
-### Search engine options
-
-`SearchEngine` lazily opens SQLite databases and caches prepared statements. You can tweak its behavior with:
-
-| Option | Description | Default |
-| --- | --- | --- |
-| `timeout` | Milliseconds a connection may remain idle before being closed. | `300000` |
-| `cacheSize` | Maximum number of prepared statements retained in an LRU cache. | `100` |
-
-```js
-const SearchEngine = require("./SearchEngine");
-const engine = new SearchEngine({ timeout: 300000, cacheSize: 100 });
-```
+Run the script whenever the translation databases change to keep search results accurate.
 
 ## Commands:
 
-    /brsearch Luke 1:1-3 or Luke - Retrieve all information matching search term.
+    /brsearch query - Search for verses containing the query.
     /brpoints - View the top 10 users points standings.
     /brmypoints - View your current points standings.
     /brdaily - View the daily verse.
@@ -100,7 +86,7 @@ Run the automated tests with the built-in Node.js test runner:
 node --test
 ```
 
-This executes all unit tests, including full-text search coverage for `SearchEngine`.
+This executes all unit tests.
 
 
 
