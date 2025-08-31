@@ -1,7 +1,7 @@
 # BibleRef
 This Discord bot was developed as a personal project to replace multiple bots in my server with just one. If you see this I have made this public and anyone is free to do what they wish with this project.
 
-BibleRef is a comprehensive tool for Bible study and engagement, featuring the American Standard Version (ASV) and the King James Version (KJV) with Strong’s numbers. Users can switch translations at any time with the `/translation` command. The bot includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. It is built using Node.js with a small dependency set, making it straightforward to self-host and customize according to your needs.
+BibleRef is a comprehensive tool for Bible study and engagement, featuring the American Standard Version (ASV) and the King James Version (KJV) with Strong’s numbers. Users can switch translations at any time with the `/brtranslation` command. The bot includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. It is built using Node.js with a small dependency set, making it straightforward to self-host and customize according to your needs.
 
 >[!NOTE]
 >This was created with God's will and ChatGPT, all glory to God it is working. 🙏
@@ -69,7 +69,7 @@ Run the script whenever the translation databases change to keep search results 
     /brmypoints - View your current points standings.
     /brdaily - View the daily verse.
     /brtrivia - Start a Bible trivia game, optionally specifying a category.
-    /translation set:<translation> - Set your preferred Bible translation (ASV or KJV Strongs).
+    /brtranslation set:<translation> - Set your preferred Bible translation (ASV or KJV Strongs).
 
 ## Configuration:
 

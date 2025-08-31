@@ -5,7 +5,7 @@ const { getUserTranslation } = require('../db/users');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('verse')
+    .setName('brverse')
     .setDescription('Fetch a verse from the Bible')
     .addStringOption(option =>
       option
