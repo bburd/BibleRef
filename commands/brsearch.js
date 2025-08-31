@@ -29,7 +29,6 @@ module.exports = {
     const ref = parseRef(query);
     const isRange =
       ref && Array.isArray(ref.verses) && ref.verses.length > 1 && query.includes('-');
-
     await interaction.deferReply();
     let adapter;
     try {

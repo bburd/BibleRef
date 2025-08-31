@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
+
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
 
@@ -40,6 +41,7 @@ commandDirs.forEach((commandsPath) => {
         }
       });
   });
+
 });
 
 if (fs.existsSync(buttonsPath)) {
@@ -60,7 +62,8 @@ if (fs.existsSync(buttonsPath)) {
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
-  setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
+  await setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
+  await setupPlanScheduler(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
