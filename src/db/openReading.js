@@ -39,6 +39,8 @@ async function openReading(translation = 'asv', options = {}) {
         });
       },
       close: () => adapter.close(),
+      _db: adapter._db,
+      _cols: adapter._cols,
     };
   }
 }
