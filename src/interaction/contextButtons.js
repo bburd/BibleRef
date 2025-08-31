@@ -10,18 +10,31 @@ const STRONGS_TRANSLATIONS = {
   asvs: 'asvs',
 };
 
-async function findXrefs(adapter, strong, exclude) {
+async function findXrefs(adapter, strongs, exclude) {
   const c = adapter._cols;
-  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse FROM verses WHERE ${c.text} LIKE ? LIMIT 5`;
-  return new Promise((resolve, reject) => {
-    adapter._db.all(sql, [`%<${strong}>%`], (err, rows) => {
-      if (err) return reject(err);
-      const refs = rows.filter(
-        (r) => !(r.book === exclude.book && r.chapter === exclude.chapter && r.verse === exclude.verse)
+
+  function all(sql, params) {
+    return new Promise((resolve, reject) => {
+      adapter._db.all(sql, params, (err, rows) =>
+        err ? reject(err) : resolve(rows)
       );
-      resolve(refs);
     });
-  });
+  }
+
+  const counts = new Map();
+  for (const strong of strongs) {
+    const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse FROM verses WHERE ${c.text} LIKE ?`;
+    const rows = await all(sql, [`%<${strong}>%`]);
+    for (const r of rows) {
+      if (r.book === exclude.book && r.chapter === exclude.chapter && r.verse === exclude.verse) continue;
+      const key = `${r.book}:${r.chapter}:${r.verse}`;
+      const existing = counts.get(key);
+      if (existing) existing.count += 1;
+      else counts.set(key, { ...r, count: 1 });
+    }
+  }
+
+  return Array.from(counts.values()).sort((a, b) => b.count - a.count);
 }
 
 module.exports = async function handleContextButtons(interaction) {
@@ -74,16 +87,22 @@ module.exports = async function handleContextButtons(interaction) {
 
       // xref
       const matches = row.text.match(/<[GH]\d+>/gi) || [];
-      const unique = Array.from(new Set(matches.map((m) => m.slice(1, -1))));
-      const xrefs = [];
-      for (const strong of unique) {
-        const refs = await findXrefs(adapter, strong, { book, chapter, verse });
-        for (const r of refs) {
-          const refStr = `${idToName(r.book)} ${r.chapter}:${r.verse}`;
-          if (!xrefs.includes(refStr)) xrefs.push(refStr);
-          if (xrefs.length >= 5) break;
-        }
-        if (xrefs.length >= 5) break;
+      let xrefs = [];
+      if (matches.length) {
+        const strongs = Array.from(new Set(matches.map((m) => m.slice(1, -1))));
+        const refs = await findXrefs(adapter, strongs, { book, chapter, verse });
+        xrefs = refs
+          .slice(0, 5)
+          .map((r) => `${idToName(r.book)} ${r.chapter}:${r.verse}`);
+      } else {
+        // Fallback to simple text search when strong's tokens are unavailable
+        const cleaned = row.text.replace(/<[^>]+>/g, '').split(/\s+/).slice(0, 3).join(' ');
+        const results = await adapter.search(cleaned, 5);
+        xrefs = results
+          .filter(
+            (r) => !(r.book === book && r.chapter === chapter && r.verse === verse)
+          )
+          .map((r) => `${idToName(r.book)} ${r.chapter}:${r.verse}`);
       }
       adapter.close();
       if (!xrefs.length) {
