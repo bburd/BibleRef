@@ -26,8 +26,8 @@ async function openReading(translation = 'asv', options = {}) {
         const rows = await adapter.getChapter(book, chapter);
         return rows.map((r) => ({ ...r, text: stripStrongs(r.text) }));
       },
-      getVersesSubset: async (book, chapter, start, end) => {
-        const rows = await adapter.getVersesSubset(book, chapter, start, end);
+      getVersesSubset: async (book, chapter, verses) => {
+        const rows = await adapter.getVersesSubset(book, chapter, verses);
         return rows.map((r) => ({ ...r, text: stripStrongs(r.text) }));
       },
       search: async (q, limit) => {

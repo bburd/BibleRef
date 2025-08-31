@@ -37,11 +37,11 @@ test('getChapter retrieves all verses in order', async () => {
   db.close();
 });
 
-test('getVersesSubset retrieves range ordered by verse', async () => {
+test('getVersesSubset retrieves non-contiguous verses ordered by verse', async () => {
   const db = await createAdapter('kjv');
   const john = nameToId('John');
-  const verses = await db.getVersesSubset(john, 3, 16, 18);
-  assert.deepEqual(verses.map(v => v.verse), [16, 17, 18]);
+  const verses = await db.getVersesSubset(john, 3, [16, 18]);
+  assert.deepEqual(verses.map(v => v.verse), [16, 18]);
   db.close();
 });
 
