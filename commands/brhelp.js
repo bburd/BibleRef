@@ -35,9 +35,29 @@ module.exports = {
             inline: false,
           },
           {
-            name: "/verse",
+            name: "/brverse",
             value: "Fetch a verse from the Bible.",
             inline: false,
+          },
+          {
+            name: "/brtranslation",
+            value: "Set your preferred Bible translation.",
+            inline: false,
+          },
+          {
+            name: "/brplan",
+            value: "Manage reading plans.",
+            inline: false,
+          },
+          {
+            name: "/brcardverse",
+            value: "Render a verse on a shareable card.",
+            inline: false,
+          },
+          {
+            name: "/brlex",
+            value: "Look up Strong's entries and verses.",
+            inline: false
           }
         )
       .setTimestamp();
