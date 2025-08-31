@@ -18,3 +18,11 @@ test('search finds verse', async () => {
   assert.ok(results.some(r => r.book === john && r.chapter === 3 && r.verse === 16));
   db.close();
 });
+
+test('random search returns a verse', async () => {
+  const db = await createAdapter('kjv_strongs');
+  const results = await db.search('random', 1);
+  assert.equal(results.length, 1);
+  assert.ok(results[0].text && results[0].book);
+  db.close();
+});

@@ -86,6 +86,10 @@ function getVerse(state, book, chapter, verse) {
 
 function search(state, query, limit = 10) {
   const c = state.columns;
+  if (query === 'random') {
+    const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses ORDER BY RANDOM() LIMIT ?`;
+    return all(state.db, sql, [limit]);
+  }
   if (state.hasFts) {
     const sql = `SELECT v.${c.book} AS book, v.${c.chapter} AS chapter, v.${c.verse} AS verse, snippet(verses_fts, 0, '<b>', '</b>', '...', 10) AS snippet FROM verses_fts JOIN verses v ON verses_fts.rowid = v.${c.id} WHERE verses_fts MATCH ? LIMIT ?`;
     return all(state.db, sql, [query, limit]);
