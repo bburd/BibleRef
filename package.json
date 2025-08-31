@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.78",
     "discord-api-types": "^0.38.22",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
