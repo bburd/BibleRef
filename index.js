@@ -5,6 +5,7 @@ const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
 const handleAutocomplete = require("./src/interaction/autocomplete");
+const handleContextButtons = require("./src/interaction/contextButtons");
 
 const client = new Client({
   intents: [
@@ -90,6 +91,8 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   } else if (interaction.isButton()) {
+    if (await handleContextButtons(interaction)) return;
+
     const handler = client.buttons.get(interaction.customId);
     if (!handler) {
       try {
