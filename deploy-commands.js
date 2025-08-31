@@ -7,13 +7,17 @@ const { Routes } = require("discord-api-types/v10");
 const { fetchWithRetry } = require("./utils/http");
 
 const commands = [];
-const commandFiles = fs
-  .readdirSync("./commands")
-  .filter((file) => file.endsWith(".js"));
+const commandDirs = ["./commands", "./src/commands"];
 
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  commands.push(command.data.toJSON());
+for (const dir of commandDirs) {
+  if (!fs.existsSync(dir)) continue;
+  const commandFiles = fs
+    .readdirSync(dir)
+    .filter((file) => file.endsWith(".js"));
+  for (const file of commandFiles) {
+    const command = require(`${dir}/${file}`);
+    commands.push(command.data.toJSON());
+  }
 }
 
 (async () => {

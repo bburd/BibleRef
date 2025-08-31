@@ -4,18 +4,18 @@ const fs = require('fs');
 
 const configs = [
   {
-    file: path.join(__dirname, '..', 'kjv_bible.db'),
-    ftsTable: 'kjv_fts',
-    contentTable: 'kjv',
+    file: path.join(__dirname, 'kjv_strongs.sqlite'),
+    ftsTable: 'verses_fts',
+    contentTable: 'verses',
     contentRowid: 'id',
-    columns: ['book_name', 'text'],
+    columns: ['book', 'chapter', 'verse', 'text'],
   },
   {
-    file: path.join(__dirname, '..', 'kjv_pure.db'),
-    ftsTable: 'kjv_pure_fts',
-    contentTable: 'kjv_pure',
-    contentRowid: 'rowid',
-    columns: ['verse_text'],
+    file: path.join(__dirname, 'asvs.sqlite'),
+    ftsTable: 'verses_fts',
+    contentTable: 'verses',
+    contentRowid: 'id',
+    columns: ['book', 'chapter', 'verse', 'text'],
   },
 ];
 

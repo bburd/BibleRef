@@ -1,10 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { openDatabase } = require('../src/db/translations');
+const { createAdapter } = require('../src/db/translations');
 const { nameToId } = require('../src/lib/books');
 
 test('getVerse retrieves verse', async () => {
-  const db = await openDatabase('kjv');
+  const db = await createAdapter('kjv_strongs');
   const john = nameToId('John');
   const verse = await db.getVerse(john, 3, 16);
   assert.ok(verse && verse.text.includes('God'));
@@ -12,7 +12,7 @@ test('getVerse retrieves verse', async () => {
 });
 
 test('search finds verse', async () => {
-  const db = await openDatabase('kjv');
+  const db = await createAdapter('kjv_strongs');
   const results = await db.search('only begotten', 10);
   const john = nameToId('John');
   assert.ok(results.some(r => r.book === john && r.chapter === 3 && r.verse === 16));
