@@ -6,6 +6,7 @@ const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
+const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 
 const client = new Client({
   intents: [
@@ -91,6 +92,8 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   } else if (interaction.isButton()) {
+    const lexHandled = await handleLexButtons(interaction);
+    if (lexHandled) return;
     // Attempt to handle context-specific buttons before other handlers
     const contextHandled = await handleContextButtons(interaction);
     if (contextHandled) return;
