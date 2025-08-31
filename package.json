@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "db:migrate": "node db/migrate-fts.js",
+    "db:migrate:rebuild": "node db/migrate-fts.js --rebuild"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.22",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "lru-cache": "^10.4.3",
+    "moment-timezone": "^0.5.45",
+    "node-cron": "^3.0.3",
+    "sqlite3": "^5.1.7",
+    "undici": "^7.15.0"
+  },
+  "overrides": {
+    "tar-fs": "^2.1.3"
+  }
+}
