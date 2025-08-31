@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('node:path');
 
 test('brsearch truncates long results with notice', async () => {
-  const searchModulePath = path.resolve(__dirname, '../SearchEngine.js');
+  const searchPath = path.resolve(__dirname, '../src/search/searchSmart.js');
 
   const longText = 'x'.repeat(500);
   const fakeResults = Array.from({ length: 10 }, (_, i) => ({
@@ -13,7 +13,7 @@ test('brsearch truncates long results with notice', async () => {
     text: longText,
   }));
 
-  require.cache[searchModulePath] = {
+  require.cache[searchPath] = {
     exports: async () => fakeResults,
   };
 
