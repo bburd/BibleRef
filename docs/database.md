@@ -32,7 +32,7 @@ Per-user translation choices are stored in `db/bot_settings.sqlite`:
 ```sql
 CREATE TABLE user_prefs (
   user_id TEXT PRIMARY KEY,
-  translation TEXT CHECK(translation IN ('asv','asvs','kjv','kjv_strongs')),
+  translation TEXT CHECK(translation IN ('asv','kjv')),
   updated_at INTEGER
 );
 ```
