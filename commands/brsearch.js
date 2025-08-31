@@ -10,6 +10,18 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const SearchEngine = require("../SearchEngine");
 
+function packState(state) {
+  return Buffer.from(JSON.stringify(state)).toString("base64");
+}
+
+function unpackState(str) {
+  try {
+    return JSON.parse(Buffer.from(str, "base64").toString());
+  } catch (err) {
+    return null;
+  }
+}
+
 function setupDatabaseConnections() {
   const dbPaths = {
     bible_db: "../kjv_bible.db", // Updated path for your database
@@ -79,22 +91,18 @@ module.exports = {
     const query = interaction.options.getString("query");
     await interaction.deferReply();
     try {
-      const results = await performSearch(query);
-      if (!results.length) {
-        await interaction.editReply("No results found.");
-        return;
-      }
-
-      await sendPaginatedResults(interaction, results, query);
+      await sendPaginatedResults(interaction, query);
     } catch (error) {
       console.error("Error performing search:", error);
       await interaction.editReply("There was an error executing this command.");
     }
   },
+  handleButtons,
 };
 
-async function performSearch(query) {
-  const results = [];
+async function performSearch(query, offset, limit) {
+  let rows = [];
+  let total = 0;
   try {
     const isVersePattern = /^[a-zA-Z]+\s+\d+:\d+(-\d+)?$/; // Matches verses like "John 3:16" or "John 3:16-17"
     const isTextPattern = /^".*"$/; // Matches phrases enclosed in quotes, e.g., "In the beginning"
@@ -106,36 +114,48 @@ async function performSearch(query) {
         ? verses.split("-").map(Number)
         : [Number(verses), Number(verses)];
 
-      const rows = await queryDatabase(
+      rows = await queryDatabase(
         dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ? ORDER BY verse`,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ? ORDER BY verse LIMIT ? OFFSET ?`,
+        [`${book}%`, chapter, startVerse, endVerse, limit, offset]
+      );
+      const countRows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT COUNT(*) as count FROM kjv WHERE book_name LIKE ? AND chapter = ? AND verse BETWEEN ? AND ?`,
         [`${book}%`, chapter, startVerse, endVerse]
       );
-
-      results.push(...rows);
+      total = countRows[0]?.count || 0;
     } else if (isTextPattern.test(query)) {
       const searchText = query.slice(1, -1); // Remove quotes
-      const rows = await queryDatabase(
+      rows = await queryDatabase(
         dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE text LIKE ?`,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE text LIKE ? LIMIT ? OFFSET ?`,
+        [`%${searchText}%`, limit, offset]
+      );
+      const countRows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT COUNT(*) as count FROM kjv WHERE text LIKE ?`,
         [`%${searchText}%`]
       );
-
-      results.push(...rows);
+      total = countRows[0]?.count || 0;
     } else {
       // Fallback to book name search or keyword search
-      const rows = await queryDatabase(
+      rows = await queryDatabase(
         dbConnections.bible_db,
-        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? OR text LIKE ?`,
+        `SELECT book_name, chapter, verse, text FROM kjv WHERE book_name LIKE ? OR text LIKE ? LIMIT ? OFFSET ?`,
+        [`%${query}%`, `%${query}%`, limit, offset]
+      );
+      const countRows = await queryDatabase(
+        dbConnections.bible_db,
+        `SELECT COUNT(*) as count FROM kjv WHERE book_name LIKE ? OR text LIKE ?`,
         [`%${query}%`, `%${query}%`]
       );
-
-      results.push(...rows);
+      total = countRows[0]?.count || 0;
     }
   } catch (error) {
     console.error("Error executing search:", error);
   }
-  return results;
+  return { rows, total };
 }
 
 function queryDatabase(db, sql, params) {
@@ -178,102 +198,118 @@ async function performTopicSearch(interaction, phrase) {
   await interaction.editReply({ embeds: [embed] });
 }
 
-async function sendPaginatedResults(interaction, results, query) {
-  const itemsPerPage = 10;
-  const pages = [];
-  const totalResults = results.length;
-  const totalPages = Math.ceil(totalResults / itemsPerPage);
-
-  console.log(`Total results: ${totalResults}`);
-
-  for (let i = 0; i < totalResults; i += itemsPerPage) {
-    const page = results.slice(i, i + itemsPerPage);
-    const embed = new EmbedBuilder()
-      .setColor("#0099ff")
-      .setTitle(
-        `Search Results for "${query}" are available for 10 minutes. If you need more time use the command again.`
-      )
-      .setDescription(
-        `Showing results ${i + 1} - ${Math.min(
-          i + itemsPerPage,
-          totalResults
-        )} of ${totalResults}`
-      );
-
-    for (let index = 0; index < page.length; index++) {
-      const result = page[index];
-      const completeVerse = `${result.book_name} ${result.chapter}:${result.verse} - ${result.text}`;
-
-      embed.addFields({
-        name: `Result ${i + index + 1}`,
-        value: completeVerse,
-        inline: false,
-      });
-    }
-    pages.push(embed);
-  }
-
-  let currentPage = 0;
-
-  const getPaginationRow = () => {
-    return new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId("first")
-        .setLabel("|<")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(currentPage === 0),
-      new ButtonBuilder()
-        .setCustomId("previous")
-        .setLabel("<")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(currentPage === 0),
-      new ButtonBuilder()
-        .setCustomId("next")
-        .setLabel(">")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(currentPage === totalPages - 1),
-      new ButtonBuilder()
-        .setCustomId("last")
-        .setLabel(">|")
-        .setStyle(ButtonStyle.Primary)
-        .setDisabled(currentPage === totalPages - 1)
+function buildSearchEmbed(results, query, offset, total) {
+  const embed = new EmbedBuilder()
+    .setColor("#0099ff")
+    .setTitle(
+      `Search Results for "${query}" are available for 10 minutes. If you need more time use the command again.`
+    )
+    .setDescription(
+      `Showing results ${offset + 1} - ${offset + results.length} of ${total}`
     );
-  };
 
-  const message = await interaction.editReply({
-    embeds: [pages[currentPage]],
-    content: `Page ${currentPage + 1} of ${totalPages}`,
-    components: [getPaginationRow()],
-  });
-
-  const collector = message.createMessageComponentCollector({ time: 600000 }); // 10 minutes
-
-  collector.on("collect", async (i) => {
-    if (i.customId === "next" && currentPage < totalPages - 1) {
-      currentPage++;
-    } else if (i.customId === "previous" && currentPage > 0) {
-      currentPage--;
-    } else if (i.customId === "first") {
-      currentPage = 0;
-    } else if (i.customId === "last") {
-      currentPage = totalPages - 1;
-    }
-
-    await i.update({
-      embeds: [pages[currentPage]],
-      content: `Page ${currentPage + 1} of ${totalPages}`,
-      components: [getPaginationRow()],
+  results.forEach((result, idx) => {
+    const completeVerse = `${result.book_name} ${result.chapter}:${result.verse} - ${result.text}`;
+    embed.addFields({
+      name: `Result ${offset + idx + 1}`,
+      value: completeVerse,
+      inline: false,
     });
   });
 
-  collector.on("end", () => {
-    message
-      .edit({
-        content: "Pagination ended. Use the command again if needed.",
-        components: [],
-      })
-      .catch((error) =>
-        console.error("Failed to edit message after collector end:", error)
-      );
+  return embed;
+}
+
+function getPaginationRow(query, offset, limit, total) {
+  const lastOffset = Math.floor((total - 1) / limit) * limit;
+  const firstState = packState({ query, offset: 0, limit, total });
+  const prevState = packState({
+    query,
+    offset: Math.max(0, offset - limit),
+    limit,
+    total,
   });
+  const nextState = packState({ query, offset: offset + limit, limit, total });
+  const lastState = packState({ query, offset: lastOffset, limit, total });
+
+  return new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(`brsearch_first:${firstState}`)
+      .setLabel("|<")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(offset === 0),
+    new ButtonBuilder()
+      .setCustomId(`brsearch_prev:${prevState}`)
+      .setLabel("<")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(offset === 0),
+    new ButtonBuilder()
+      .setCustomId(`brsearch_next:${nextState}`)
+      .setLabel(">")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(offset + limit >= total),
+    new ButtonBuilder()
+      .setCustomId(`brsearch_last:${lastState}`)
+      .setLabel(">|")
+      .setStyle(ButtonStyle.Primary)
+      .setDisabled(offset + limit >= total)
+  );
+}
+
+async function sendPaginatedResults(interaction, query) {
+  const limit = 10;
+  const { rows, total } = await performSearch(query, 0, limit);
+  if (!rows.length) {
+    await interaction.editReply("No results found.");
+    return;
+  }
+
+  const embed = buildSearchEmbed(rows, query, 0, total);
+  const row = getPaginationRow(query, 0, limit, total);
+  const totalPages = Math.ceil(total / limit);
+
+  await interaction.editReply({
+    embeds: [embed],
+    content: `Page 1 of ${totalPages}`,
+    components: [row],
+  });
+}
+
+async function handleButtons(interaction) {
+  const [action, payload] = interaction.customId.split(":");
+  if (!action.startsWith("brsearch_")) return false;
+  const state = unpackState(payload);
+  if (!state || !state.query) {
+    await interaction.reply({
+      content: "Invalid button state.",
+      ephemeral: true,
+    });
+    return true;
+  }
+
+  const { query, offset, limit, total } = state;
+  const lastOffset = Math.floor((total - 1) / limit) * limit;
+  let newOffset = offset;
+  if (action === "brsearch_next") {
+    newOffset = Math.min(offset + limit, lastOffset);
+  } else if (action === "brsearch_prev") {
+    newOffset = Math.max(offset - limit, 0);
+  } else if (action === "brsearch_first") {
+    newOffset = 0;
+  } else if (action === "brsearch_last") {
+    newOffset = lastOffset;
+  }
+
+  const { rows } = await performSearch(query, newOffset, limit);
+  const embed = buildSearchEmbed(rows, query, newOffset, total);
+  const row = getPaginationRow(query, newOffset, limit, total);
+  const totalPages = Math.ceil(total / limit);
+  const pageNumber = Math.floor(newOffset / limit) + 1;
+
+  await interaction.update({
+    embeds: [embed],
+    content: `Page ${pageNumber} of ${totalPages}`,
+    components: [row],
+  });
+  return true;
 }
