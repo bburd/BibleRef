@@ -3,7 +3,7 @@ const { setUserTranslation } = require('../db/users');
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('translation')
+    .setName('brtranslation')
     .setDescription('Set your preferred Bible translation')
     .addStringOption(option =>
       option
