@@ -75,10 +75,25 @@ function deleteDailySettings(guildId) {
   });
 }
 
+function getOne(guildId) {
+  return getDailySettings(guildId);
+}
+
+function setOne(guildId, channelId, time, timezone) {
+  return setDailySettings(guildId, channelId, time, timezone);
+}
+
+function clearOne(guildId) {
+  return deleteDailySettings(guildId);
+}
+
 module.exports = {
   getAllDailySettings,
   getDailySettings,
   setDailySettings,
   deleteDailySettings,
+  getOne,
+  setOne,
+  clearOne,
 };
 
