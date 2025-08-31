@@ -1,9 +1,10 @@
 const { createAdapter } = require('./src/db/translations');
+const searchSmart = require('./src/search/searchSmart');
 
 async function search(query, translation = 'asvs', limit = 10) {
   const adapter = await createAdapter(translation);
   try {
-    return await adapter.search(query, limit);
+    return await searchSmart(adapter, query, limit);
   } finally {
     if (adapter && adapter.close) adapter.close();
   }
