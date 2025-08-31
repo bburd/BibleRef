@@ -15,6 +15,7 @@ function createAdapter(translation = 'asvs', options = {}) {
   const state = { db, columns: null, hasFts: false };
 
   return introspect(state)
+    .then(() => ensureLocIndex(state))
     .then(() => ensureFts(state, options.fts))
     .then(() => ({
       getVerse: (book, chapter, verse) => getVerse(state, book, chapter, verse),
@@ -53,6 +54,13 @@ function tableExists(db, table) {
       (err, row) => resolve(!!row)
     );
   });
+}
+
+function ensureLocIndex(state) {
+  const c = state.columns;
+  if (!c.book || !c.chapter || !c.verse) return Promise.resolve();
+  const sql = `CREATE INDEX IF NOT EXISTS verses_loc_idx ON verses(${c.book}, ${c.chapter}, ${c.verse})`;
+  return run(state.db, sql).catch(() => {});
 }
 
 function ensureFts(state, build) {
