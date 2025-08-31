@@ -91,7 +91,9 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   } else if (interaction.isButton()) {
-    if (await handleContextButtons(interaction)) return;
+    // Attempt to handle context-specific buttons before other handlers
+    const contextHandled = await handleContextButtons(interaction);
+    if (contextHandled) return;
 
     const handler = client.buttons.get(interaction.customId);
     if (!handler) {
