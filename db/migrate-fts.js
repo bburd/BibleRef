@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Databases to process
-const dbFiles = ['asvs.sqlite', 'kjv_strongs.sqlite'];
+const dbFiles = ['asv.sqlite', 'asvs.sqlite', 'kjv.sqlite', 'kjv_strongs.sqlite'];
 
 // Optionally rebuild the FTS index contents
 const rebuild = process.argv.includes('--rebuild');

@@ -14,7 +14,7 @@ function setupDailyVerse(client) {
   const { time, timezone, channelId, translation: configTranslation } = config;
 
   const defaultTranslation =
-    configTranslation || process.env.DEFAULT_TRANSLATION || 'asvs';
+    configTranslation || process.env.DEFAULT_TRANSLATION || 'asv';
 
   const [hour, minute] = time.split(':').map((num) => parseInt(num, 10));
 

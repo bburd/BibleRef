@@ -30,8 +30,8 @@ module.exports = {
         .setName('translation')
         .setDescription('Bible translation')
         .addChoices(
-          { name: 'ASV', value: 'asvs' },
-          { name: 'KJV Strongs', value: 'kjv_strongs' }
+          { name: 'ASV', value: 'asv' },
+          { name: 'KJV', value: 'kjv' }
         )
     ),
 
@@ -42,7 +42,7 @@ module.exports = {
     let translation = interaction.options.getString('translation');
 
     if (!translation) {
-      translation = (await getUserTranslation(interaction.user.id)) || 'asvs';
+      translation = (await getUserTranslation(interaction.user.id)) || 'asv';
     }
 
     const bookId = nameToId(bookInput);
