@@ -1,44 +1,13 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
-const { EmbedBuilder } = require("discord.js");
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+} = require("discord.js");
 const fs = require("fs").promises;
-
-let scores = {};
-let isLoadingScores = false;
-let isScoresLoaded = false;
-const scoresFilePath = "scores.json";
-
-async function loadScores() {
-  try {
-    const data = await fs.readFile(scoresFilePath, "utf8");
-    scores = JSON.parse(data);
-    isScoresLoaded = true;
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      console.log(
-        "Scores file not found. Starting with an empty scores object."
-      );
-      scores = {};
-    } else {
-      console.error("Failed to read scores file:", error);
-      throw new Error("Failed to load scores");
-    }
-  } finally {
-    isLoadingScores = false;
-  }
-}
-
-async function saveScores() {
-  if (isLoadingScores || !isScoresLoaded) {
-    console.log("Skipping save as scores are currently loading or not loaded.");
-    return;
-  }
-  try {
-    await fs.writeFile(scoresFilePath, JSON.stringify(scores, null, 2), "utf8");
-    console.log("Scores saved successfully.");
-  } catch (error) {
-    console.error("Failed to save scores:", error);
-  }
-}
+const { addScore, setSession, getSession } = require("../src/db/trivia");
 
 async function loadTriviaQuestions() {
   try {
@@ -50,16 +19,22 @@ async function loadTriviaQuestions() {
   }
 }
 
-// Ensure scores are loaded at startup
-loadScores().catch((error) => console.error("Error on initial load:", error));
+function getTriviaQuestion(triviaQuestions, category) {
+  const filteredQuestions = category
+    ? triviaQuestions.filter((q) => q.categories.includes(category))
+    : triviaQuestions;
+  return filteredQuestions[
+    Math.floor(Math.random() * filteredQuestions.length)
+  ];
+}
 
-// Set up periodic saving every 5 minutes
-setInterval(saveScores, 300000); // 300000 milliseconds = 5 minutes
-
-process.on("SIGINT", async () => {
-  await saveScores(); // Ensure scores are saved when the bot is stopped
-  process.exit(0);
-});
+function shuffleArray(array) {
+  for (let i = array.length - 1; i >= 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -84,9 +59,15 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
     try {
-      const triviaQuestions = await loadTriviaQuestions();
-      await loadScores();
+      const existing = await getSession(interaction.guildId);
+      if (existing) {
+        await interaction.editReply(
+          "A trivia question is already active in this server."
+        );
+        return;
+      }
 
+      const triviaQuestions = await loadTriviaQuestions();
       const category = interaction.options.getString("category");
       const triviaQuestion = getTriviaQuestion(triviaQuestions, category);
 
@@ -110,50 +91,59 @@ module.exports = {
         )
         .setFooter({ text: `Reference: ${triviaQuestion.reference}` });
 
+      const buttons = shuffledChoices.map((_, index) =>
+        new ButtonBuilder()
+          .setCustomId(String(index))
+          .setLabel(String.fromCharCode(65 + index))
+          .setStyle(ButtonStyle.Primary)
+      );
+      const row = new ActionRowBuilder().addComponents(buttons);
+
       const message = await interaction.editReply({
         embeds: [embed],
+        components: [row],
         fetchReply: true,
       });
 
-      const emojis = ["🇦", "🇧", "🇨", "🇩"].slice(0, shuffledChoices.length);
-      const answeredUsers = new Set(); // Track users who have answered
+      await setSession(interaction.guildId, { messageId: message.id });
 
-      for (const emoji of emojis) {
-        await message.react(emoji);
-      }
-
-      const collector = message.createReactionCollector({
-        filter: (reaction, user) =>
-          emojis.includes(reaction.emoji.name) && !user.bot,
+      const answeredUsers = new Set();
+      const collector = message.createMessageComponentCollector({
+        componentType: ComponentType.Button,
         time: 60000,
       });
 
-      collector.on("collect", async (reaction, user) => {
-        // Check if the user has already answered
-        if (answeredUsers.has(user.id)) {
-          await interaction.channel.send({
-            content: `${user.username}, you have already answered this question.`,
+      collector.on("collect", async (i) => {
+        if (answeredUsers.has(i.user.id)) {
+          await i.reply({
+            content: "You have already answered this question.",
+            ephemeral: true,
           });
-          // Remove the reaction of the user to indicate they can't answer again
-          reaction.users.remove(user.id).catch(console.error);
           return;
         }
 
-        // Mark the user as having answered
-        answeredUsers.add(user.id);
+        answeredUsers.add(i.user.id);
 
-        // Handle the reaction
-        handleReaction(
-          reaction,
-          user,
-          triviaQuestion,
-          shuffledChoices,
-          interaction
-        );
+        const index = parseInt(i.customId, 10);
+        const isCorrect =
+          shuffledChoices[index] === triviaQuestion.answer;
+        const resultMessage = isCorrect
+          ? "Correct! 🎉"
+          : `That's not it! The correct answer was: ${triviaQuestion.answer}`;
+
+        await addScore(i.user.id, i.user.username, isCorrect);
+        await interaction.channel.send({
+          content: `${i.user.username}, ${resultMessage}`,
+        });
+        await i.deferUpdate();
       });
 
-      collector.on("end", () => {
-        console.log("Trivia question ended");
+      collector.on("end", async () => {
+        await setSession(interaction.guildId, null);
+        const disabled = new ActionRowBuilder().addComponents(
+          row.components.map((btn) => ButtonBuilder.from(btn).setDisabled(true))
+        );
+        await message.edit({ components: [disabled] }).catch(() => {});
       });
     } catch (error) {
       console.error(
@@ -166,48 +156,3 @@ module.exports = {
     }
   },
 };
-
-function getTriviaQuestion(triviaQuestions, category) {
-  const filteredQuestions = category
-    ? triviaQuestions.filter((q) => q.categories.includes(category))
-    : triviaQuestions;
-  return filteredQuestions[
-    Math.floor(Math.random() * filteredQuestions.length)
-  ];
-}
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i >= 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-async function handleReaction(
-  reaction,
-  user,
-  triviaQuestion,
-  shuffledChoices,
-  interaction
-) {
-  const answerIndex = ["🇦", "🇧", "🇨", "🇩"].indexOf(reaction.emoji.name);
-  const isCorrect = shuffledChoices[answerIndex] === triviaQuestion.answer;
-  const resultMessage = isCorrect
-    ? "Correct! 🎉"
-    : `That's not it! The correct answer was: ${triviaQuestion.answer}`;
-
-  // Send a public message to the channel with the result
-  await interaction.channel.send({
-    content: `${user.username}, ${resultMessage}`,
-  });
-
-  if (isCorrect) {
-    if (!scores[user.id]) {
-      scores[user.id] = { score: 0, username: user.username };
-    }
-    scores[user.id].score++;
-    // Scores will be saved periodically and on shutdown, no need to save now.
-  }
-  reaction.users.remove(user.id).catch(console.error);
-}
