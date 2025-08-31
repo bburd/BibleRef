@@ -1,51 +1,46 @@
 // scheduler/dailyVerseScheduler.js
-const fs = require("fs");
-const path = require("path");
-const cron = require("node-cron");
-const sqlite3 = require("sqlite3").verbose();
-const dbPath = path.join(__dirname, "..", "kjv_pure.db");
+const fs = require('fs');
+const path = require('path');
+const cron = require('node-cron');
+const { createAdapter } = require('../src/db/translations');
+const { idToName } = require('../src/lib/books');
 
 let currentDailyVerse = null;
 
 function setupDailyVerse(client) {
-  const configPath = path.join(__dirname, "dailybread.json");
-  const { time, timezone, channelId } = JSON.parse(
-    fs.readFileSync(configPath, "utf8")
-  );
+  const configPath = path.join(__dirname, 'dailybread.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const { time, timezone, channelId, translation: configTranslation } = config;
 
-  const [hour, minute] = time.split(":").map((num) => parseInt(num, 10));
+  const defaultTranslation =
+    configTranslation || process.env.DEFAULT_TRANSLATION || 'asvs';
+
+  const [hour, minute] = time.split(':').map((num) => parseInt(num, 10));
 
   cron.schedule(
     `${minute} ${hour} * * *`,
-    function () {
-      const db = new sqlite3.Database(
-        dbPath,
-        sqlite3.OPEN_READONLY,
-        (err) => {
-          if (err) {
-            console.error("Error opening database:", err.message);
-          } else {
-            db.get(
-              "SELECT verse_text, book_name FROM kjv_pure ORDER BY RANDOM() LIMIT 1",
-              (err, row) => {
-                if (err) {
-                  console.error(err.message);
-                  return;
-                }
+    async function () {
+      let adapter;
+      try {
+        adapter = await createAdapter(defaultTranslation);
+        const results = await adapter.search('random', 1);
+        const row = results[0];
+        if (!row) return;
 
-                currentDailyVerse = `${row.book_name}: ${row.verse_text}`;
+        const verseText = `${idToName(row.book)} ${row.chapter}:${row.verse} - ${row.text}`;
+        currentDailyVerse = verseText;
 
-                const channel = client.channels.cache.get(channelId);
-                if (channel) {
-                  channel.send(currentDailyVerse);
-                } else {
-                  console.error("Channel not found:", channelId);
-                }
-              }
-            );
-          }
+        const channel = client.channels.cache.get(channelId);
+        if (channel) {
+          channel.send(verseText);
+        } else {
+          console.error('Channel not found:', channelId);
         }
-      );
+      } catch (err) {
+        console.error('Error fetching daily verse:', err);
+      } finally {
+        if (adapter && adapter.close) adapter.close();
+      }
     },
     { timezone }
   );
@@ -59,3 +54,4 @@ module.exports = {
   setupDailyVerse,
   getCurrentDailyVerse,
 };
+
