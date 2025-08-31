@@ -18,6 +18,9 @@ function createAdapter(translation = 'asvs', options = {}) {
     .then(() => ensureFts(state, options.fts))
     .then(() => ({
       getVerse: (book, chapter, verse) => getVerse(state, book, chapter, verse),
+      getChapter: (book, chapter) => getChapter(state, book, chapter),
+      getVersesSubset: (book, chapter, start, end) =>
+        getVersesSubset(state, book, chapter, start, end),
       search: (q, limit) => search(state, q, limit),
       close: () => db.close(),
     }));
@@ -82,6 +85,18 @@ function getVerse(state, book, chapter, verse) {
       else resolve(row || null);
     });
   });
+}
+
+function getChapter(state, book, chapter) {
+  const c = state.columns;
+  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? ORDER BY ${c.verse}`;
+  return all(state.db, sql, [book, chapter]);
+}
+
+function getVersesSubset(state, book, chapter, startVerse, endVerse) {
+  const c = state.columns;
+  const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? AND ${c.verse} BETWEEN ? AND ? ORDER BY ${c.verse}`;
+  return all(state.db, sql, [book, chapter, startVerse, endVerse]);
 }
 
 function search(state, query, limit = 10) {

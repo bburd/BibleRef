@@ -26,3 +26,21 @@ test('random search returns a verse', async () => {
   assert.ok(results[0].text && results[0].book);
   db.close();
 });
+
+test('getChapter retrieves all verses in order', async () => {
+  const db = await createAdapter('kjv_strongs');
+  const john = nameToId('John');
+  const verses = await db.getChapter(john, 3);
+  assert.ok(Array.isArray(verses) && verses.length > 0);
+  assert.equal(verses[0].verse, 1);
+  assert.ok(verses.every((v, i) => i === 0 || v.verse > verses[i - 1].verse));
+  db.close();
+});
+
+test('getVersesSubset retrieves range ordered by verse', async () => {
+  const db = await createAdapter('kjv_strongs');
+  const john = nameToId('John');
+  const verses = await db.getVersesSubset(john, 3, 16, 18);
+  assert.deepEqual(verses.map(v => v.verse), [16, 17, 18]);
+  db.close();
+});
