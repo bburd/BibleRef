@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
+const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 
 const client = new Client({
   intents: [
@@ -103,6 +104,7 @@ client.on("interactionCreate", async (interaction) => {
       console.error("Error executing autocomplete handler:", error);
     }
   } else if (interaction.isButton()) {
+    if (await handleLexButtons(interaction)) return;
     let handler = client.buttons.get(interaction.customId);
     if (!handler) {
       const dynamic = client.dynamicButtons.find((h) =>
