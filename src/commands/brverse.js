@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { nameToId, idToName, searchBooks } = require('../lib/books');
+const { nameToId, idToName } = require('../lib/books');
 const { openReadingAdapter } = require('../db/openReading');
 const contextRow = require('../ui/contextRow');
 const { getUserTranslation } = require('../db/users');
@@ -80,27 +80,6 @@ module.exports = {
       await interaction.reply('There was an error fetching the verse.');
     } finally {
       if (adapter && adapter.close) adapter.close();
-    }
-  },
-  async autocomplete(interaction) {
-    const focused = interaction.options.getFocused(true);
-    const value = focused.value;
-    if (focused.name === 'book') {
-      const choices = searchBooks(value).map(({ id, name }) => ({
-        name,
-        value: String(id),
-      }));
-      await interaction.respond(choices);
-    } else if (focused.name === 'chapter' || focused.name === 'verse') {
-      const num = parseInt(value, 10);
-      const start = Number.isNaN(num) || num < 1 ? 1 : num;
-      const options = Array.from({ length: 25 }, (_, i) => start + i).map((n) => ({
-        name: String(n),
-        value: n,
-      }));
-      await interaction.respond(options);
-    } else {
-      await interaction.respond([]);
     }
   },
 };

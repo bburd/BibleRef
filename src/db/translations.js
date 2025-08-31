@@ -26,6 +26,8 @@ function createAdapter(translation = 'asv', options = {}) {
         getVersesSubset(state, book, chapter, verses),
       search: (q, limit) => search(state, q, limit),
       close: () => db.close(),
+      _db: state.db,
+      _cols: state.columns,
     }));
 }
 

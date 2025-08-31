@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
+const handleAutocomplete = require("./src/interaction/autocomplete");
 
 const client = new Client({
   intents: [
@@ -62,6 +63,14 @@ client.once("ready", () => {
 });
 
 client.on("interactionCreate", async (interaction) => {
+  if (interaction.isAutocomplete()) {
+    try {
+      await handleAutocomplete(interaction);
+    } catch (error) {
+      console.error("Error executing autocomplete handler:", error);
+    }
+    return;
+  }
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (!command) {
@@ -79,21 +88,6 @@ client.on("interactionCreate", async (interaction) => {
         content: "There was an error while executing this command!",
         ephemeral: true,
       });
-    }
-  } else if (interaction.isAutocomplete()) {
-    const command = client.commands.get(interaction.commandName);
-    if (!command || !command.autocomplete) {
-      try {
-        await interaction.respond([]);
-      } catch (err) {
-        console.error("Error responding to unknown autocomplete:", err);
-      }
-      return;
-    }
-    try {
-      await command.autocomplete(interaction);
-    } catch (error) {
-      console.error("Error executing autocomplete handler:", error);
     }
   } else if (interaction.isButton()) {
     const handler = client.buttons.get(interaction.customId);
