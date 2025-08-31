@@ -124,14 +124,14 @@ function lexEmbed(strong, entry, verses, offset, total) {
 
 async function handleButtons(interaction) {
   const [action, payload] = interaction.customId.split(":");
-  if (!action.startsWith("brlex_")) return;
+  if (!action.startsWith("brlex_")) return false;
   const state = unpackState(payload);
   if (!state || !state.strong) {
     await interaction.reply({
       content: "Invalid button state.",
       ephemeral: true,
     });
-    return;
+    return true;
   }
   const { strong, offset = 0 } = state;
   const entry = getLexEntry(strong);
@@ -155,6 +155,7 @@ async function handleButtons(interaction) {
   );
 
   await interaction.update({ embeds: [embed], components: [row] });
+  return true;
 }
 
 module.exports = {
