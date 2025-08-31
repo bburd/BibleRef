@@ -15,25 +15,37 @@ const client = new Client({
 
 client.commands = new Collection();
 client.buttons = new Collection();
-const commandsPath = path.join(__dirname, "commands");
+client.dynamicButtons = [];
+const commandDirs = [
+  path.join(__dirname, "commands"),
+  path.join(__dirname, "src/commands"),
+];
 const buttonsPath = path.join(__dirname, "buttons");
 
-fs.readdir(commandsPath, (err, files) => {
-  if (err) return console.error(err);
-  files
-    .filter((file) => file.endsWith(".js"))
-    .forEach((file) => {
-      const filePath = path.join(commandsPath, file);
-      try {
-        const command = require(filePath);
-        client.commands.set(command.data.name, command);
-        // Optional debug log for successful loads
-        console.log(`Loaded command: ${file}`);
-      } catch (err) {
-        console.error(`Failed to load command ${file}:`, err);
-      }
-    });
-});
+for (const dir of commandDirs) {
+  if (!fs.existsSync(dir)) continue;
+  fs.readdir(dir, (err, files) => {
+    if (err) return console.error(err);
+    files
+      .filter((file) => file.endsWith(".js"))
+      .forEach((file) => {
+        const filePath = path.join(dir, file);
+        try {
+          const command = require(filePath);
+          client.commands.set(command.data.name, command);
+          if (typeof command.handleButtons === "function") {
+            client.dynamicButtons.push({
+              prefix: `${command.data.name}_`,
+              execute: command.handleButtons,
+            });
+          }
+          console.log(`Loaded command: ${file}`);
+        } catch (err) {
+          console.error(`Failed to load command ${file}:`, err);
+        }
+      });
+  });
+}
 
 if (fs.existsSync(buttonsPath)) {
   fs.readdir(buttonsPath, (err, files) => {
@@ -91,7 +103,13 @@ client.on("interactionCreate", async (interaction) => {
       console.error("Error executing autocomplete handler:", error);
     }
   } else if (interaction.isButton()) {
-    const handler = client.buttons.get(interaction.customId);
+    let handler = client.buttons.get(interaction.customId);
+    if (!handler) {
+      const dynamic = client.dynamicButtons.find((h) =>
+        interaction.customId.startsWith(h.prefix)
+      );
+      if (dynamic) handler = dynamic;
+    }
     if (!handler) {
       try {
         await interaction.reply({
