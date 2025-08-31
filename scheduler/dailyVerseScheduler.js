@@ -1,70 +1,54 @@
-const cron = require('node-cron');
-const sqlite3 = require('sqlite3').verbose();
+// scheduler/dailyVerseScheduler.js
+const fs = require('fs');
 const path = require('path');
-const { getAllDailySettings } = require('../src/db/guild-settings');
+const cron = require('node-cron');
+const { openReading } = require('../src/db/openReading');
+const searchSmart = require('../src/search/searchSmart');
+const { idToName } = require('../src/lib/books');
 
-const verseDbPath = path.join(__dirname, 'kjv_pure.db');
+let currentDailyVerse = null;
 
-const tasks = new Map();
-const currentDailyVerses = new Map();
+function setupDailyVerse(client) {
+  const configPath = path.join(__dirname, 'dailybread.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const { time, timezone, channelId, translation: configTranslation } = config;
 
-function scheduleGuild(client, setting) {
-  const { guild_id, channel_id, time, timezone } = setting;
-  if (!guild_id || !channel_id || !time || !timezone) return;
-  const [hour, minute] = time.split(':').map(Number);
+  const defaultTranslation =
+    configTranslation || process.env.DEFAULT_TRANSLATION || 'asv';
 
-  const task = cron.schedule(
+  const [hour, minute] = time.split(':').map((num) => parseInt(num, 10));
+
+  cron.schedule(
     `${minute} ${hour} * * *`,
-    () => {
-      const db = new sqlite3.Database(verseDbPath, sqlite3.OPEN_READONLY);
-      db.get(
-        'SELECT verse_text, book_name FROM kjv_pure ORDER BY RANDOM() LIMIT 1',
-        (err, row) => {
-          if (err) {
-            console.error(err.message);
-            db.close();
-            return;
-          }
+    async function () {
+      let adapter;
+      try {
+        adapter = await openReading(defaultTranslation);
+        const results = await searchSmart(adapter, 'random', 1);
+        const row = results[0];
+        if (!row) return;
 
-          const verse = `${row.book_name}: ${row.verse_text}`;
-          currentDailyVerses.set(guild_id, verse);
+        const verseText = `${idToName(row.book)} ${row.chapter}:${row.verse} - ${row.text}`;
+        currentDailyVerse = verseText;
 
-          const channel = client.channels.cache.get(channel_id);
-          if (channel) {
-            channel.send(verse);
-          } else {
-            console.error('Channel not found:', channel_id);
-          }
-          db.close();
+        const channel = client.channels.cache.get(channelId);
+        if (channel) {
+          channel.send(verseText);
+        } else {
+          console.error('Channel not found:', channelId);
         }
-      );
+      } catch (err) {
+        console.error('Error fetching daily verse:', err);
+      } finally {
+        if (adapter && adapter.close) adapter.close();
+      }
     },
     { timezone }
   );
-
-  tasks.set(guild_id, task);
 }
 
-async function setupDailyVerse(client) {
-  // clear existing tasks
-  for (const task of tasks.values()) {
-    task.stop();
-  }
-  tasks.clear();
-
-  let settings;
-  try {
-    settings = await getAllDailySettings();
-  } catch (err) {
-    console.error('Failed to load daily settings:', err);
-    return;
-  }
-
-  settings.forEach((setting) => scheduleGuild(client, setting));
-}
-
-function getCurrentDailyVerse(guildId) {
-  return currentDailyVerses.get(guildId);
+function getCurrentDailyVerse() {
+  return currentDailyVerse;
 }
 
 module.exports = {

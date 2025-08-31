@@ -4,8 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
-const { setupPlanScheduler } = require("./scheduler/planScheduler");
-const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
+
+const handleAutocomplete = require("./src/interaction/autocomplete");
+const handleContextButtons = require("./src/interaction/contextButtons");
 
 const client = new Client({
   intents: [
@@ -17,37 +18,31 @@ const client = new Client({
 
 client.commands = new Collection();
 client.buttons = new Collection();
-client.dynamicButtons = [];
+const buttonsPath = path.join(__dirname, "buttons");
 const commandDirs = [
   path.join(__dirname, "commands"),
-  path.join(__dirname, "src/commands"),
+  path.join(__dirname, "src", "commands"),
 ];
-const buttonsPath = path.join(__dirname, "buttons");
 
-for (const dir of commandDirs) {
-  if (!fs.existsSync(dir)) continue;
-  fs.readdir(dir, (err, files) => {
+commandDirs.forEach((commandsPath) => {
+  if (!fs.existsSync(commandsPath)) return;
+  fs.readdir(commandsPath, (err, files) => {
     if (err) return console.error(err);
     files
       .filter((file) => file.endsWith(".js"))
       .forEach((file) => {
-        const filePath = path.join(dir, file);
+        const filePath = path.join(commandsPath, file);
         try {
           const command = require(filePath);
           client.commands.set(command.data.name, command);
-          if (typeof command.handleButtons === "function") {
-            client.dynamicButtons.push({
-              prefix: `${command.data.name}_`,
-              execute: command.handleButtons,
-            });
-          }
           console.log(`Loaded command: ${file}`);
         } catch (err) {
           console.error(`Failed to load command ${file}:`, err);
         }
       });
   });
-}
+
+});
 
 if (fs.existsSync(buttonsPath)) {
   fs.readdir(buttonsPath, (err, files) => {
@@ -65,13 +60,21 @@ if (fs.existsSync(buttonsPath)) {
   });
 }
 
-client.once("ready", async () => {
+client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
   await setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
   await setupPlanScheduler(client);
 });
 
 client.on("interactionCreate", async (interaction) => {
+  if (interaction.isAutocomplete()) {
+    try {
+      await handleAutocomplete(interaction);
+    } catch (error) {
+      console.error("Error executing autocomplete handler:", error);
+    }
+    return;
+  }
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (!command) {
@@ -90,30 +93,12 @@ client.on("interactionCreate", async (interaction) => {
         ephemeral: true,
       });
     }
-  } else if (interaction.isAutocomplete()) {
-    const command = client.commands.get(interaction.commandName);
-    if (!command || !command.autocomplete) {
-      try {
-        await interaction.respond([]);
-      } catch (err) {
-        console.error("Error responding to unknown autocomplete:", err);
-      }
-      return;
-    }
-    try {
-      await command.autocomplete(interaction);
-    } catch (error) {
-      console.error("Error executing autocomplete handler:", error);
-    }
   } else if (interaction.isButton()) {
-    if (await handleLexButtons(interaction)) return;
-    let handler = client.buttons.get(interaction.customId);
-    if (!handler) {
-      const dynamic = client.dynamicButtons.find((h) =>
-        interaction.customId.startsWith(h.prefix)
-      );
-      if (dynamic) handler = dynamic;
-    }
+    // Attempt to handle context-specific buttons before other handlers
+    const contextHandled = await handleContextButtons(interaction);
+    if (contextHandled) return;
+
+    const handler = client.buttons.get(interaction.customId);
     if (!handler) {
       try {
         await interaction.reply({

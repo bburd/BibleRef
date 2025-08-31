@@ -1,7 +1,7 @@
 # BibleRef
 This Discord bot was developed as a personal project to replace multiple bots in my server with just one. If you see this I have made this public and anyone is free to do what they wish with this project.
 
-BibleRef is a comprehensive tool for Bible study and engagement, featuring the full King James Version (KJV) Bible ~~and the Strong's Concordance~~. It includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. The bot is built using Node.js, making it straightforward to self-host and customize according to your needs.
+BibleRef is a comprehensive tool for Bible study and engagement, featuring the American Standard Version (ASV) and the King James Version (KJV) with Strong’s numbers. Users can switch translations at any time with the `/brtranslation` command. The bot includes a variety of features to enrich your spiritual journey and make Bible study more interactive and enjoyable. It is built using Node.js with a small dependency set, making it straightforward to self-host and customize according to your needs.
 
 >[!NOTE]
 >This was created with God's will and ChatGPT, all glory to God it is working. 🙏
@@ -22,36 +22,54 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the f
    [Samleo8](https://github.com/Samleo8/BibleQuizzleDiscord) for some of the trivia questions.
 
 ## Key Features:
-### 1. Full KJV Bible:
-   - Access the complete text of the King James Version Bible directly within Discord. Easily search and reference scriptures for study, discussion, and inspiration.
+### 1. Multiple Bible Translations:
+   - Access the complete text of the ASV or the KJV with Strong’s numbers directly within Discord. Easily search and reference scriptures for study, discussion, and inspiration.
 
-### 2. ~~Strong's Concordance:~~
-   - ~~Utilize the Strong's Concordance for in-depth Bible study. Look up the original Greek and Hebrew words, understand their meanings, and see where they appear in the Bible.~~
-      **Strongs concordance is currently a WIP**
-
-### 3. Daily Verse:
+### 2. Daily Verse:
    - Receive a daily Bible verse automatically delivered to your Discord server. Start your day with a dose of spiritual inspiration and reflection.
 
-### 4. Bible Trivia Game:
+### 3. Bible Trivia Game:
    - Challenge yourself and others with a trivia game that includes over 200 Bible-related questions. Test your knowledge, learn new facts, and have fun with friends.
 
-### 5. Easy to Self-Host:
+### 4. Easy to Self-Host:
    - Built with Node.js, this bot is easy to set up and host on your own server. The use of a JSON configuration file for storing sensitive information like tokens and IDs makes the bot secure and manageable.
 
-### 6. Interactive Commands:
-   - The bot comes with a variety of interactive commands, making it user-friendly and engaging. Users can easily fetch Bible verses, participate in trivia, and more.
+### 5. Interactive Commands:
+   - The bot comes with a variety of interactive commands, making it user-friendly and engaging. Users can easily fetch Bible verses, participate in trivia, change translations, and more.
+
+## Dependencies
+
+BibleRef relies on a small set of libraries to remain lightweight:
+
+- `discord.js`
+- `sqlite3`
+- `node-cron`
+- `moment-timezone`
+- `lru-cache`
+- `undici`
 
 ## Getting Started:
 
-To get started with this bot, you will need to have a hosting solution for Node.js and the host will need to allow more than one sqlite database. Check the setup guide for details. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
+To get started with this bot, you will need a hosting solution for Node.js and a host that allows a few SQLite databases (two translations and user settings). Check the setup guide for details. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
+
+## Full-text Search
+
+SQLite FTS5 virtual tables power fast verse searches. Create or rebuild the `verses_fts` indexes with:
+
+```
+node db/migrate-fts.js
+```
+
+Run the script whenever the translation databases change to keep search results accurate.
 
 ## Commands:
 
-    /brsearch Luke 1:1-3 or Luke - Retrieve all information matching search term.
+    /brsearch query - Search for verses containing the query.
     /brpoints - View the top 10 users points standings.
     /brmypoints - View your current points standings.
     /brdaily set|status|clear - Manage daily verse settings.
     /brtrivia - Start a Bible trivia game, optionally specifying a category.
+    /brtranslation set:<translation> - Set your preferred Bible translation (ASV or KJV Strongs).
 
 ## Configuration:
 
@@ -67,6 +85,16 @@ CLIENT_ID=YOUR_CLIENTID
 GUILD_ID=YOUR_SERVERID
 # Rename this file to .env
 ```
+
+## Testing
+
+Run the automated tests with the built-in Node.js test runner:
+
+```bash
+node --test
+```
+
+This executes all unit tests.
 
 
 
