@@ -43,4 +43,4 @@ async function openReading(translation = 'asv', options = {}) {
   }
 }
 
-module.exports = { openReading };
+module.exports = { openReading, openReadingAdapter: openReading };
