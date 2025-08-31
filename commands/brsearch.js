@@ -8,6 +8,7 @@ const {
 } = require("discord.js");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const SearchEngine = require("../SearchEngine");
 
 function setupDatabaseConnections() {
   const dbPaths = {
@@ -36,14 +37,45 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("brsearch")
     .setDescription("Searches the KJV Bible")
-    .addStringOption((option) =>
-      option
-        .setName("query")
-        .setDescription("The search query")
-        .setRequired(true)
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("text")
+        .setDescription("Search by verse reference or text")
+        .addStringOption((option) =>
+          option
+            .setName("query")
+            .setDescription("The search query")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("topic")
+        .setDescription("Search by topic phrase")
+        .addStringOption((option) =>
+          option
+            .setName("phrase")
+            .setDescription("Phrase to search")
+            .setRequired(true)
+        )
     ),
 
   async execute(interaction) {
+    const subcommand = interaction.options.getSubcommand();
+    if (subcommand === "topic") {
+      const phrase = interaction.options.getString("phrase");
+      await interaction.deferReply();
+      try {
+        await performTopicSearch(interaction, phrase);
+      } catch (error) {
+        console.error("Error performing topic search:", error);
+        await interaction.editReply(
+          "There was an error executing this command."
+        );
+      }
+      return;
+    }
+
     const query = interaction.options.getString("query");
     await interaction.deferReply();
     try {
@@ -113,6 +145,37 @@ function queryDatabase(db, sql, params) {
       else resolve(rows);
     });
   });
+}
+
+async function performTopicSearch(interaction, phrase) {
+  const adapter = new SearchEngine();
+  const wideResults = await adapter.search(phrase);
+  const verses = wideResults.kjv_pure || [];
+
+  const clusters = verses.reduce((acc, row) => {
+    const book = row.book_name || row.book || "Unknown";
+    acc[book] = (acc[book] || 0) + 1;
+    return acc;
+  }, {});
+
+  const sorted = Object.entries(clusters).sort((a, b) => b[1] - a[1]);
+
+  if (!sorted.length) {
+    await interaction.editReply("No results found.");
+    return;
+  }
+
+  const topBuckets = sorted.slice(0, 10);
+  const embed = new EmbedBuilder()
+    .setColor("#0099ff")
+    .setTitle(`Topic results for "${phrase}"`)
+    .setDescription("Top books containing the phrase");
+
+  for (const [book, count] of topBuckets) {
+    embed.addFields({ name: String(book), value: `${count} hits`, inline: false });
+  }
+
+  await interaction.editReply({ embeds: [embed] });
 }
 
 async function sendPaginatedResults(interaction, results, query) {
