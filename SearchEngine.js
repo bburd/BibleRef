@@ -1,8 +1,8 @@
-const { createAdapter } = require('./src/db/translations');
+const { openReading } = require('./src/db/openReading');
 const searchSmart = require('./src/search/searchSmart');
 
 async function search(query, translation = 'asv', limit = 10) {
-  const adapter = await createAdapter(translation);
+  const adapter = await openReading(translation);
   try {
     return await searchSmart(adapter, query, limit);
   } finally {

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
-const { createAdapter } = require('../src/db/translations');
+const { openReading } = require('../src/db/openReading');
 const searchSmart = require('../src/search/searchSmart');
 const { idToName } = require('../src/lib/books');
 
@@ -23,7 +23,7 @@ function setupDailyVerse(client) {
     async function () {
       let adapter;
       try {
-        adapter = await createAdapter(defaultTranslation);
+        adapter = await openReading(defaultTranslation);
         const results = await searchSmart(adapter, 'random', 1);
         const row = results[0];
         if (!row) return;

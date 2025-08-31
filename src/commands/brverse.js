@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { nameToId, idToName } = require('../lib/books');
-const { createAdapter } = require('../db/translations');
+const { openReading } = require('../db/openReading');
 const { getUserTranslation } = require('../db/users');
 
 module.exports = {
@@ -53,7 +53,7 @@ module.exports = {
 
     let adapter;
     try {
-      adapter = await createAdapter(translation);
+      adapter = await openReading(translation);
       const result = await adapter.getVerse(bookId, chapter, verseNum);
       if (!result) {
         await interaction.reply('Verse not found.');
