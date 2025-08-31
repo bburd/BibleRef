@@ -1,14 +1,14 @@
 // commands/brdaily.js
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { EmbedBuilder } = require("discord.js");
-const { getCurrentDailyVerse } = require("../scheduler/dailyVerseScheduler");
+const { getCurrentDailyVerse, setupDailyVerse } = require("../scheduler/dailyVerseScheduler");
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("brdaily")
     .setDescription("Receives the daily verse."),
   async execute(interaction) {
-    const currentDailyVerse = getCurrentDailyVerse();
+    const currentDailyVerse = getCurrentDailyVerse(interaction.guildId);
 
     if (currentDailyVerse) {
       const embed = new EmbedBuilder()
@@ -21,5 +21,8 @@ module.exports = {
     } else {
       await interaction.reply("No daily verse has been set yet.");
     }
+
+    // Reschedule tasks in case configuration has changed
+    await setupDailyVerse(interaction.client);
   },
 };

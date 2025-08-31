@@ -64,9 +64,9 @@ if (fs.existsSync(buttonsPath)) {
   });
 }
 
-client.once("ready", () => {
+client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
-  setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
+  await setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
 });
 
 client.on("interactionCreate", async (interaction) => {
