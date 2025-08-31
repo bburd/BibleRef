@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const { createAdapter } = require('../src/db/translations');
+const searchSmart = require('../src/search/searchSmart');
 const { idToName } = require('../src/lib/books');
 
 let currentDailyVerse = null;
@@ -23,7 +24,7 @@ function setupDailyVerse(client) {
       let adapter;
       try {
         adapter = await createAdapter(defaultTranslation);
-        const results = await adapter.search('random', 1);
+        const results = await searchSmart(adapter, 'random', 1);
         const row = results[0];
         if (!row) return;
 
