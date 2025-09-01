@@ -6,6 +6,7 @@ const {
   clearSettings,
 } = require('../db/guild-settings');
 const { setupDailyVerse } = require('../../scheduler/dailyVerseScheduler');
+const { ephemeral } = require('../utils/ephemeral');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -51,10 +52,11 @@ module.exports = {
         allowedRoles.includes(role.id)
       )
     ) {
-      await interaction.reply({
-        content: 'You do not have permission to use this command.',
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({
+          content: 'You do not have permission to use this command.',
+        })
+      );
       return;
     }
 
@@ -65,43 +67,43 @@ module.exports = {
       const channel =
         interaction.options.getChannel('channel') || interaction.channel;
       if (!moment(time, 'HH:mm', true).isValid()) {
-        return interaction.reply({
-          content: 'Invalid time format. Use HH:mm (24-hour).',
-          ephemeral: true,
-        });
+        return interaction.reply(
+          ephemeral({
+            content: 'Invalid time format. Use HH:mm (24-hour).',
+          })
+        );
       }
       if (!moment.tz.zone(timezone)) {
-        return interaction.reply({
-          content: 'Invalid timezone.',
-          ephemeral: true,
-        });
+        return interaction.reply(
+          ephemeral({ content: 'Invalid timezone.' })
+        );
       }
       const norm = moment(time, 'HH:mm').format('HH:mm');
       await setSettings(interaction.guild.id, channel.id, norm, timezone);
       await setupDailyVerse(interaction.client);
-      await interaction.reply({
-        content: `Daily verse set for <#${channel.id}> at ${norm} ${timezone}.`,
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({
+          content: `Daily verse set for <#${channel.id}> at ${norm} ${timezone}.`,
+        })
+      );
     } else if (sub === 'status') {
       const row = await getSettings(interaction.guild.id);
       if (!row) {
-        return interaction.reply({
-          content: 'No daily verse configured.',
-          ephemeral: true,
-        });
+        return interaction.reply(
+          ephemeral({ content: 'No daily verse configured.' })
+        );
       }
-      await interaction.reply({
-        content: `Channel: <#${row.channel_id}>\nTime: ${row.time} ${row.timezone}`,
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({
+          content: `Channel: <#${row.channel_id}>\nTime: ${row.time} ${row.timezone}`,
+        })
+      );
     } else if (sub === 'clear') {
       await clearSettings(interaction.guild.id);
       await setupDailyVerse(interaction.client);
-      await interaction.reply({
-        content: 'Daily verse configuration cleared.',
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({ content: 'Daily verse configuration cleared.' })
+      );
     }
   },
 };

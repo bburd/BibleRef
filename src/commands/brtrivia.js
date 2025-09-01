@@ -1,6 +1,13 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const {
+  SlashCommandBuilder,
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+} = require('discord.js');
 const fs = require('fs').promises;
 const { addScore } = require('../db/trivia');
+const { ephemeral } = require('../utils/ephemeral');
 
 const activeTrivia = new Map();
 
@@ -27,9 +34,9 @@ function shuffleArray(array) {
 
 function respond(interaction, content) {
   if (interaction.replied || interaction.deferred) {
-    return interaction.followUp({ content, ephemeral: true });
+    return interaction.followUp(ephemeral({ content }));
   }
-  return interaction.reply({ content, ephemeral: true });
+  return interaction.reply(ephemeral({ content }));
 }
 
 async function execute(interaction) {

@@ -3,6 +3,7 @@ const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
 const path = require('path');
 const { nameToId, idToName } = require('../lib/books');
 const openReadingAdapter = require('../utils/openReadingAdapter');
+const { ephemeral } = require('../utils/ephemeral');
 
 // Register font
 const fontPath = path.join(__dirname, '..', '..', 'assets', 'Inter-Regular.ttf');
@@ -68,7 +69,7 @@ module.exports = {
       bookId = nameToId(bookArg);
     }
     if (!bookId) {
-      await interaction.reply({ content: 'Unknown book.', ephemeral: true });
+      await interaction.reply(ephemeral({ content: 'Unknown book.' }));
       return;
     }
 

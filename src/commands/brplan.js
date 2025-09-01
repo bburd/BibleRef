@@ -7,6 +7,7 @@ const {
   stopPlan,
 } = require('../db/plans');
 const planDefs = require('../../plan_defs.json');
+const { ephemeral } = require('../utils/ephemeral');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -39,7 +40,9 @@ module.exports = {
       try {
         const plan = await getPlanDef(planId);
         if (!plan) {
-          await interaction.reply({ content: 'Plan not found.', ephemeral: true });
+          await interaction.reply(
+            ephemeral({ content: 'Plan not found.' })
+          );
           return;
         }
         await startPlan(userId, planId);
@@ -49,38 +52,52 @@ module.exports = {
         } catch (err) {
           console.error('Failed to send DM:', err);
         }
-        await interaction.reply({
-          content: `Started plan **${plan.name}**. First reading sent via DM.`,
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({
+            content: `Started plan **${plan.name}**. First reading sent via DM.`,
+          })
+        );
       } catch (err) {
-        await interaction.reply({ content: 'Failed to start plan.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'Failed to start plan.' })
+        );
       }
     } else if (sub === 'status') {
       try {
         const row = await getUserPlan(userId);
         if (!row) {
-          await interaction.reply({ content: 'No active plan.', ephemeral: true });
+          await interaction.reply(
+            ephemeral({ content: 'No active plan.' })
+          );
           return;
         }
         const plan = await getPlanDef(row.plan_id);
-        await interaction.reply({
-          content: `Reading plan: **${plan.name}**. Day ${row.day + 1} of ${plan.days.length}. Current streak: ${row.streak}.`,
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({
+            content: `Reading plan: **${plan.name}**. Day ${row.day + 1} of ${plan.days.length}. Current streak: ${row.streak}.`,
+          })
+        );
       } catch (err) {
-        await interaction.reply({ content: 'Failed to get status.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'Failed to get status.' })
+        );
       }
     } else if (sub === 'stop') {
       try {
         const removed = await stopPlan(userId);
         if (!removed) {
-          await interaction.reply({ content: 'No active plan to stop.', ephemeral: true });
+          await interaction.reply(
+            ephemeral({ content: 'No active plan to stop.' })
+          );
         } else {
-          await interaction.reply({ content: 'Stopped the current reading plan.', ephemeral: true });
+          await interaction.reply(
+            ephemeral({ content: 'Stopped the current reading plan.' })
+          );
         }
       } catch (err) {
-        await interaction.reply({ content: 'Failed to stop plan.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'Failed to stop plan.' })
+        );
       }
     } else if (sub === 'complete') {
       try {
@@ -98,12 +115,15 @@ module.exports = {
             console.error('Failed to send DM:', err);
           }
         }
-        await interaction.reply({
-          content: `Day ${nextDay} completed. Current streak: ${streak}`,
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({
+            content: `Day ${nextDay} completed. Current streak: ${streak}`,
+          })
+        );
       } catch (err) {
-        await interaction.reply({ content: err.message || 'Failed to complete day.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: err.message || 'Failed to complete day.' })
+        );
       }
     }
   },
