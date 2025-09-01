@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { nameToId, idToName } = require('../lib/books');
 const openReadingAdapter = require('../utils/openReadingAdapter');
 const contextRow = require('../ui/contextRow');
+const { ephemeral } = require('../utils/ephemeral');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -49,7 +50,7 @@ module.exports = {
       bookId = nameToId(bookArg);
     }
     if (!bookId) {
-      await interaction.reply({ content: 'Unknown book.', ephemeral: true });
+      await interaction.reply(ephemeral({ content: 'Unknown book.' }));
       return;
     }
 

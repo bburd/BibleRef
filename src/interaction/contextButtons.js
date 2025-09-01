@@ -3,6 +3,7 @@ const { createAdapter } = require('../db/translations');
 const { idToName } = require('../lib/books');
 const { unpack } = require('../ui/contextRow');
 const strongsDict = require('../../db/strongs-dictionary.json');
+const { ephemeral } = require('../utils/ephemeral');
 
 const STRONGS_TRANSLATIONS = {
   kjv: 'kjv_strongs',
@@ -55,14 +56,18 @@ module.exports = async function handleContextButtons(interaction) {
       const rows = await adapter.getVersesSubset(book, chapter, verses);
       adapter.close();
       if (!rows.length) {
-        await interaction.reply({ content: 'No additional context available.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'No additional context available.' })
+        );
         return true;
       }
       const bookName = idToName(book);
       const msg = rows
         .map((r) => `${r.verse}. ${r.text}`)
         .join('\n');
-      await interaction.reply({ content: `${bookName} ${chapter}\n${msg}`, ephemeral: true });
+      await interaction.reply(
+        ephemeral({ content: `${bookName} ${chapter}\n${msg}` })
+      );
       return true;
     }
 
@@ -72,7 +77,9 @@ module.exports = async function handleContextButtons(interaction) {
       const row = await adapter.getVerse(book, chapter, verse);
       if (!row) {
         adapter.close();
-        await interaction.reply({ content: 'Verse not found.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'Verse not found.' })
+        );
         return true;
       }
 
@@ -93,10 +100,11 @@ module.exports = async function handleContextButtons(interaction) {
             lines.push(code);
           }
         }
-        await interaction.reply({
-          content: `${bookName} ${chapter}:${verse}\n${lines.join('\n')}`,
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({
+            content: `${bookName} ${chapter}:${verse}\n${lines.join('\n')}`,
+          })
+        );
         adapter.close();
         return true;
       }
@@ -122,12 +130,13 @@ module.exports = async function handleContextButtons(interaction) {
       }
       adapter.close();
       if (!xrefs.length) {
-        await interaction.reply({ content: 'No cross references found.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'No cross references found.' })
+        );
       } else {
-        await interaction.reply({
-          content: `Cross references: ${xrefs.join(', ')}`,
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({ content: `Cross references: ${xrefs.join(', ')}` })
+        );
       }
       return true;
     }
@@ -135,7 +144,9 @@ module.exports = async function handleContextButtons(interaction) {
     console.error('Error handling context button:', err);
     if (!interaction.replied) {
       try {
-        await interaction.reply({ content: 'Error processing request.', ephemeral: true });
+        await interaction.reply(
+          ephemeral({ content: 'Error processing request.' })
+        );
       } catch (e) {
         console.error('Failed to reply to interaction:', e);
       }

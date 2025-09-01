@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { setUserTranslation } = require('../db/user-prefs');
+const { ephemeral } = require('../utils/ephemeral');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -19,16 +20,16 @@ module.exports = {
     const t = interaction.options.getString('set');
     try {
       await setUserTranslation(interaction.user.id, t);
-      await interaction.reply({
-        content: `Saved. Your default reading translation is **${t.toUpperCase()}**.`,
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({
+          content: `Saved. Your default reading translation is **${t.toUpperCase()}**.`,
+        })
+      );
     } catch (err) {
       console.error('Error setting user translation:', err);
-      await interaction.reply({
-        content: 'Failed to set translation.',
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({ content: 'Failed to set translation.' })
+      );
     }
   },
 };

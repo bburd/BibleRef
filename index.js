@@ -11,6 +11,7 @@ const handleContextButtons = require("./src/interaction/contextButtons");
 const { handleButtons: handleTriviaButtons } = require("./src/commands/brtrivia");
 const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
+const { ephemeral } = require("./src/utils/ephemeral");
 
 const client = new Client({
   intents: [
@@ -85,20 +86,18 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (!command) {
-      await interaction.reply({
+      await interaction.reply(ephemeral({
         content: "Unknown command.",
-        ephemeral: true,
-      });
+      }));
       return;
     }
     try {
       await command.execute(interaction);
     } catch (error) {
       console.error("Error executing command:", error);
-      await interaction.reply({
-        content: "There was an error while executing this command!",
-        ephemeral: true,
-      });
+      await interaction.reply(
+        ephemeral({ content: "There was an error while executing this command!" })
+      );
     }
   } else if (interaction.isButton()) {
     const triviaHandled = await handleTriviaButtons(interaction);
@@ -114,10 +113,9 @@ client.on("interactionCreate", async (interaction) => {
     const handler = client.buttons.get(interaction.customId);
     if (!handler) {
       try {
-        await interaction.reply({
-          content: "Unknown button interaction.",
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({ content: "Unknown button interaction." })
+        );
       } catch (err) {
         console.error("Error replying to unknown button interaction:", err);
       }
@@ -128,10 +126,9 @@ client.on("interactionCreate", async (interaction) => {
     } catch (error) {
       console.error(`Error executing button handler ${interaction.customId}:`, error);
       if (!interaction.replied) {
-        await interaction.reply({
-          content: "There was an error while executing this action!",
-          ephemeral: true,
-        });
+        await interaction.reply(
+          ephemeral({ content: "There was an error while executing this action!" })
+        );
       }
     }
   }
