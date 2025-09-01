@@ -44,26 +44,35 @@ module.exports = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     if (sub === 'set') {
-      const time = interaction.options.getString('time');
-      const timezone = interaction.options.getString('timezone');
+      const timeInput = interaction.options.getString('time');
+      const timezoneInput = interaction.options.getString('timezone');
       const channel =
         interaction.options.getChannel('channel') || interaction.channel;
-      if (!moment(time, 'HH:mm', true).isValid()) {
+      const parsedTime = moment(timeInput, 'HH:mm', true);
+      if (!parsedTime.isValid()) {
         return interaction.reply({
           content: 'Invalid time format. Use HH:mm (24-hour).',
           ephemeral: true,
         });
       }
-      if (!moment.tz.zone(timezone)) {
+      const zone = moment.tz.zone(timezoneInput);
+      if (!zone) {
         return interaction.reply({
           content: 'Invalid timezone.',
           ephemeral: true,
         });
       }
-      await setSettings(interaction.guild.id, channel.id, time, timezone);
+      const normalizedTime = parsedTime.format('HH:mm');
+      const normalizedTimezone = zone.name;
+      await setSettings(
+        interaction.guild.id,
+        channel.id,
+        normalizedTime,
+        normalizedTimezone
+      );
       await setupDailyVerse(interaction.client);
       await interaction.reply({
-        content: `Daily verse set for <#${channel.id}> at ${time} ${timezone}.`,
+        content: `Daily verse set for <#${channel.id}> at ${normalizedTime} ${normalizedTimezone}.`,
         ephemeral: true,
       });
     } else if (sub === 'status') {
