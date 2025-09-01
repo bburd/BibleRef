@@ -1,13 +1,11 @@
 
 const { SlashCommandBuilder } = require('discord.js');
-const {
-  getPlan,
-  setUserPlan,
-  getUserPlan,
-  advanceDay,
-  logComplete,
-} = require('../db/plans');
+const { getPlanDef, startPlan, completeDay } = require('../db/plans');
 const planDefs = require('../../plan_defs.json');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const dbPath = path.join(__dirname, '..', '..', 'db', 'bot_settings.sqlite');
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE);
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -38,12 +36,12 @@ module.exports = {
     if (sub === 'start') {
       const planId = interaction.options.getString('plan');
       try {
-        const plan = await getPlan(planId);
+        const plan = await getPlanDef(planId);
         if (!plan) {
           await interaction.reply({ content: 'Plan not found.', ephemeral: true });
           return;
         }
-        await setUserPlan(userId, planId);
+        await startPlan(userId, planId);
         const reading = plan.days[0];
         try {
           await interaction.user.send(`Day 1: ${reading}`);
@@ -59,43 +57,73 @@ module.exports = {
       }
     } else if (sub === 'status') {
       try {
-        const userPlan = await getUserPlan(userId);
-        if (!userPlan) {
-          await interaction.reply({ content: 'No active plan.', ephemeral: true });
-          return;
-        }
-        const plan = await getPlan(userPlan.plan_id || userPlan.planId);
-        const day = userPlan.day || 0;
-        await interaction.reply({
-          content: `Reading plan: **${plan.name}**. Day ${day + 1} of ${plan.days.length}. Current streak: ${userPlan.streak || 0}.`,
-          ephemeral: true,
+        await new Promise((resolve, reject) => {
+          db.get(
+            'SELECT plan_id, day, streak FROM user_plans WHERE user_id = ?',
+            [userId],
+            async (err, row) => {
+              if (err) {
+                await interaction.reply({ content: 'Failed to get status.', ephemeral: true });
+                return reject(err);
+              }
+              if (!row) {
+                await interaction.reply({ content: 'No active plan.', ephemeral: true });
+                return resolve();
+              }
+              try {
+                const plan = await getPlanDef(row.plan_id);
+                await interaction.reply({
+                  content: `Reading plan: **${plan.name}**. Day ${row.day + 1} of ${plan.days.length}. Current streak: ${row.streak}.`,
+                  ephemeral: true,
+                });
+                resolve();
+              } catch (err2) {
+                await interaction.reply({ content: 'Failed to get status.', ephemeral: true });
+                reject(err2);
+              }
+            },
+          );
         });
       } catch (err) {
-        await interaction.reply({ content: 'Failed to get status.', ephemeral: true });
+        // already replied
       }
     } else if (sub === 'stop') {
       try {
-        const userPlan = await getUserPlan(userId);
-        if (!userPlan) {
-          await interaction.reply({ content: 'No active plan to stop.', ephemeral: true });
-          return;
-        }
-        await setUserPlan(userId, null);
-        await interaction.reply({ content: 'Stopped the current reading plan.', ephemeral: true });
+        await new Promise((resolve, reject) => {
+          db.get(
+            'SELECT plan_id FROM user_plans WHERE user_id = ?',
+            [userId],
+            async (err, row) => {
+              if (err) {
+                await interaction.reply({ content: 'Failed to stop plan.', ephemeral: true });
+                return reject(err);
+              }
+              if (!row) {
+                await interaction.reply({ content: 'No active plan to stop.', ephemeral: true });
+                return resolve();
+              }
+              db.run(
+                'DELETE FROM user_plans WHERE user_id = ?',
+                [userId],
+                async (err2) => {
+                  if (err2) {
+                    await interaction.reply({ content: 'Failed to stop plan.', ephemeral: true });
+                    reject(err2);
+                  } else {
+                    await interaction.reply({ content: 'Stopped the current reading plan.', ephemeral: true });
+                    resolve();
+                  }
+                },
+              );
+            },
+          );
+        });
       } catch (err) {
-        await interaction.reply({ content: 'Failed to stop plan.', ephemeral: true });
+        // already replied
       }
     } else if (sub === 'complete') {
       try {
-        const userPlan = await getUserPlan(userId);
-        if (!userPlan) {
-          await interaction.reply({ content: 'No active plan.', ephemeral: true });
-          return;
-        }
-        const plan = await getPlan(userPlan.plan_id || userPlan.planId);
-        await logComplete(userId, plan.id, userPlan.day);
-        const { day: nextDay, streak } = await advanceDay(userId);
-        const nextReading = plan.days[nextDay];
+        const { nextReading, streak, nextDay } = await completeDay(userId);
         if (nextReading) {
           try {
             await interaction.user.send(`Day ${nextDay + 1}: ${nextReading}`);
