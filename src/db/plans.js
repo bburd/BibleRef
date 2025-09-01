@@ -102,8 +102,8 @@ async function completeDay(userId) {
   );
   if (!row) throw new Error('No active plan');
   const plan = await getPlanDef(row.plan_id);
-  const currentReading = plan.days[row.day];
-  if (!currentReading) throw new Error('Plan already completed');
+  const currentDay = plan.days[row.day];
+  if (!currentDay) throw new Error('Plan already completed');
   const todayStr = today();
   const newStreak = row.last_completed === yesterday() ? row.streak + 1 : 1;
   await prun(
@@ -116,8 +116,8 @@ async function completeDay(userId) {
     `UPDATE user_plans SET day = ?, streak = ?, last_completed = ? WHERE user_id = ?`,
     [row.day + 1, newStreak, todayStr, userId]
   );
-  const nextReading = plan.days[row.day + 1] || null;
-  return { plan, nextReading, streak: newStreak, nextDay: row.day + 1 };
+  const nextDay = plan.days[row.day + 1] || null;
+  return { plan, nextDayReadings: nextDay, streak: newStreak, nextDay: row.day + 1 };
 }
 
 async function getAllUserPlans() {
