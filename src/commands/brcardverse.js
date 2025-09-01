@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { AttachmentBuilder } = require('discord.js');
 const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
 const path = require('path');
