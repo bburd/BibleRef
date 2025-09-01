@@ -7,10 +7,10 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the A
 >This was created with God's will and ChatGPT, all glory to God it is working. 🙏
 
 >[!TIP]
->More trivia questions are always needed and I am open to other suggestions, however my coding skills are rather limited.
+>More trivia questions are always needed and I am open to other suggestions!.
 
 >[!IMPORTANT]
->Please accept my *formal apology to the coding community* for creating what I can only assume is a disgrace.
+>Don't forget to run 'node deploy-commands.js' and 'node db/migrate-fts.js' (just once) before you run the bot with 'node index.js'
 
 > [!WARNING]
 > This bot will require you setup a discord bot using the [Discord developer portal](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://discord.com/developers/applications&ved=2ahUKEwjrsZnVlvGGAxUSSDABHWEbBQwQFnoECAYQAQ&usg=AOvVaw1wrZe_Tr9Sav0Zx4-42-Jf). It is free and easy, there are many guides available.
