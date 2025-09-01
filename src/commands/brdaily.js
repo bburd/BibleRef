@@ -1,5 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { ChannelType } = require('discord.js');
+const { SlashCommandBuilder, ChannelType } = require('discord.js');
 const moment = require('moment-timezone');
 const {
   getSettings,
@@ -60,10 +59,11 @@ module.exports = {
           ephemeral: true,
         });
       }
-      await setSettings(interaction.guild.id, channel.id, time, timezone);
+      const norm = moment(time, 'HH:mm').format('HH:mm');
+      await setSettings(interaction.guild.id, channel.id, norm, timezone);
       await setupDailyVerse(interaction.client);
       await interaction.reply({
-        content: `Daily verse set for <#${channel.id}> at ${time} ${timezone}.`,
+        content: `Daily verse set for <#${channel.id}> at ${norm} ${timezone}.`,
         ephemeral: true,
       });
     } else if (sub === 'status') {
