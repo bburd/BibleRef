@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { setUserTranslation } = require('../db/users');
+const { SlashCommandBuilder } = require('discord.js');
+const { setUserTranslation } = require('../db/user-prefs');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,17 +11,16 @@ module.exports = {
         .setDescription('Translation to use')
         .setRequired(true)
         .addChoices(
-          { name: 'ASV', value: 'asv' },
-          { name: 'KJV', value: 'kjv' }
+          { name: 'ASV (reading)', value: 'asv' },
+          { name: 'KJV (reading)', value: 'kjv' }
         )
     ),
   async execute(interaction) {
-    const translation = interaction.options.getString('set');
+    const t = interaction.options.getString('set');
     try {
-      await setUserTranslation(interaction.user.id, translation);
-      const pretty = translation === 'asv' ? 'ASV' : 'KJV';
+      await setUserTranslation(interaction.user.id, t);
       await interaction.reply({
-        content: `Translation set to ${pretty}.`,
+        content: `Saved. Your default reading translation is **${t.toUpperCase()}**.`,
         ephemeral: true,
       });
     } catch (err) {
