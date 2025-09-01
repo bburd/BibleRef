@@ -242,5 +242,9 @@ function searchBooks(q, limit = 25) {
   return results.slice(0, limit).map(({ id, name }) => ({ id, name }));
 }
 
-module.exports = { BOOKS, idToName, nameToId, searchBooks };
+function quickSuggestBooks(q, limit = 25) {
+  return searchBooks(q, limit).map(({ id, name }) => ({ name, value: String(id) }));
+}
+
+module.exports = { BOOKS, idToName, nameToId, searchBooks, quickSuggestBooks };
 

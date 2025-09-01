@@ -90,38 +90,42 @@ function renderItems(items) {
 
 async function execute(interaction) {
   await interaction.deferReply();
+  try {
+    const type = interaction.options.getSubcommand() === 'topic' ? 'topic' : 'text';
+    const query = interaction.options.getString('query');
+    const translation = (interaction.options.getString('translation') || 'asv').toLowerCase();
+    const pageSize = 10;
+    let page = 0;
 
-  const type = interaction.options.getSubcommand() === 'topic' ? 'topic' : 'text';
-  const query = interaction.options.getString('query');
-  const translation = (interaction.options.getString('translation') || 'asv').toLowerCase();
-  const pageSize = 10;
-  let page = 0;
+    const { items, hasNext } = await runSearch({
+      type,
+      query,
+      translation,
+      page,
+      pageSize,
+    });
 
-  const { items, hasNext } = await runSearch({
-    type,
-    query,
-    translation,
-    page,
-    pageSize,
-  });
+    if (!items.length) {
+      await interaction.editReply({ content: 'No results found.', components: [] });
+      return;
+    }
 
-  if (!items.length) {
-    await interaction.editReply({ content: 'No results found.', components: [] });
-    return;
+    const embed = new EmbedBuilder()
+      .setTitle(`Search: ${query}`)
+      .setDescription(renderItems(items))
+      .setFooter({ text: `Page ${page + 1}` });
+
+    const sent = await interaction.editReply({
+      embeds: [embed],
+      components: buildButtons({ type, query, translation, page, pageSize }, false, hasNext),
+      fetchReply: true,
+    });
+
+    searchSessions.set(sent.id, { type, query, translation, page, pageSize });
+  } catch (err) {
+    console.error('Error executing brsearch command:', err);
+    await interaction.editReply('An error occurred while executing this command.');
   }
-
-  const embed = new EmbedBuilder()
-    .setTitle(`Search: ${query}`)
-    .setDescription(renderItems(items))
-    .setFooter({ text: `Page ${page + 1}` });
-
-  const sent = await interaction.editReply({
-    embeds: [embed],
-    components: buildButtons({ type, query, translation, page, pageSize }, false, hasNext),
-    fetchReply: true,
-  });
-
-  searchSessions.set(sent.id, { type, query, translation, page, pageSize });
 }
 
 module.exports.handleButtons = async function handleSearchButtons(interaction) {
