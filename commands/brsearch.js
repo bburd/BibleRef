@@ -16,26 +16,24 @@ const MAX_TOPIC_RESULTS = 200;
 
 // msgId -> { type, query, translation, page, pageSize }
 
-function buildButtons(sess, hasPrev, hasNext) {
-  const buttons = [];
-  buttons.push(
-    new ButtonBuilder()
-      .setCustomId('bs:p')
-      .setLabel('Prev')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(!hasPrev)
-  );
-  buttons.push(
-    new ButtonBuilder()
-      .setCustomId('bs:n')
-      .setLabel('Next')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(!hasNext)
-  );
-  return [new ActionRowBuilder().addComponents(buttons)];
+function buildButtons(hasPrev, hasNext) {
+  return [
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('bs:p')
+        .setLabel('Prev')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(!hasPrev),
+      new ButtonBuilder()
+        .setCustomId('bs:n')
+        .setLabel('Next')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(!hasNext)
+    ),
+  ];
 }
 
-function summarizeTopic(results) {
+function linesFromGroups(results) {
   const groups = new Map();
   results.forEach((r) => {
     if (!groups.has(r.book)) groups.set(r.book, []);
@@ -58,13 +56,20 @@ function summarizeTopic(results) {
   return clusters.map((c) => c.line);
 }
 
+function buildTopicEmbed(query, lines, page) {
+  return new EmbedBuilder()
+    .setTitle(`Topic: ${query}`)
+    .setDescription(lines.join('\n').slice(0, 4096))
+    .setFooter({ text: `Page ${page + 1}` });
+}
+
 async function runSearch({ type, query, translation, page, pageSize }) {
   const adapter = await openReading(translation);
   try {
     if (type === 'topic') {
       const results = await searchSmart(adapter, query, MAX_TOPIC_RESULTS);
       if (!results.length) return { items: [], hasNext: false };
-      const lines = summarizeTopic(results);
+      const lines = linesFromGroups(results);
       const start = page * pageSize;
       const items = lines.slice(start, start + pageSize);
       const hasNext = start + pageSize < lines.length;
@@ -92,7 +97,7 @@ function renderItems(items) {
 async function execute(interaction) {
   await interaction.deferReply();
   try {
-    const type = interaction.options.getSubcommand() === 'topic' ? 'topic' : 'text';
+    const type = interaction.options.getSubcommand();
     const query = clampLen(interaction.options.getString('query') || '');
     if (!query.trim()) {
       await interaction.editReply({ content: 'Query cannot be empty.', components: [] });
@@ -100,7 +105,7 @@ async function execute(interaction) {
     }
     const translation = (interaction.options.getString('translation') || 'asv').toLowerCase();
     const pageSize = 10;
-    let page = 0;
+    const page = 0;
 
     const { items, hasNext } = await runSearch({
       type,
@@ -115,16 +120,22 @@ async function execute(interaction) {
       return;
     }
 
-    const content = clampLen(renderItems(items), 2000);
-    const embed = new EmbedBuilder()
-      .setTitle(`Search: ${query}`)
-      .setDescription(content.slice(0, 4096))
-      .setFooter({ text: `Page ${page + 1}` });
+    let embed;
+    if (type === 'topic') {
+      embed = buildTopicEmbed(query, items, page);
+    } else {
+      const desc = renderItems(items).slice(0, 4096);
+      embed = new EmbedBuilder()
+        .setTitle(`Search: ${query}`)
+        .setDescription(desc)
+        .setFooter({ text: `Page ${page + 1}` });
+    }
 
+    const components = buildButtons(false, hasNext);
     const sent = await interaction.editReply({
-      content,
+      content: null,
       embeds: [embed],
-      components: buildButtons({ type, query, translation, page, pageSize }, false, hasNext),
+      components,
       fetchReply: true,
     });
 
@@ -140,7 +151,7 @@ async function execute(interaction) {
 module.exports.handleButtons = async function handleSearchButtons(interaction) {
   if (!interaction.isButton()) return false;
   const id = interaction.customId;
-  if (id !== 'bs:n' && id !== 'bs:p') return false;
+  if (id !== 'bs:p' && id !== 'bs:n') return false;
 
   const msgId = interaction.message?.id;
   const sess = msgId && searchSessions.get(msgId);
@@ -160,15 +171,23 @@ module.exports.handleButtons = async function handleSearchButtons(interaction) {
     pageSize: sess.pageSize,
   });
 
-  const embed = new EmbedBuilder()
-    .setTitle(`Search: ${sess.query}`)
-    .setDescription(renderItems(items))
-    .setFooter({ text: `Page ${sess.page + 1}` });
+  let embed;
+  if (sess.type === 'topic') {
+    embed = buildTopicEmbed(sess.query, items, sess.page);
+  } else {
+    const desc = renderItems(items).slice(0, 4096);
+    embed = new EmbedBuilder()
+      .setTitle(`Search: ${sess.query}`)
+      .setDescription(desc)
+      .setFooter({ text: `Page ${sess.page + 1}` });
+  }
 
   const hasPrev = sess.page > 0;
+  const components = buildButtons(hasPrev, hasNext);
   await interaction.update({
+    content: null,
     embeds: [embed],
-    components: buildButtons(sess, hasPrev, hasNext),
+    components,
   });
 
   return true;
