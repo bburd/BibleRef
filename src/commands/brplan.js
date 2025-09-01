@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { startPlan, completeDay, getPlanDef, updateLastNotified } = require('../db/plans');
 const planDefs = require('../../plan_defs.json');
 
