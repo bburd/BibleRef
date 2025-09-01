@@ -100,12 +100,12 @@ client.on("interactionCreate", async (interaction) => {
       );
     }
   } else if (interaction.isButton()) {
+    const searchHandled = await handleSearchButtons(interaction);
+    if (searchHandled) return;
     const triviaHandled = await handleTriviaButtons(interaction);
     if (triviaHandled) return;
     const lexHandled = await handleLexButtons(interaction);
     if (lexHandled) return;
-    const searchHandled = await handleSearchButtons(interaction);
-    if (searchHandled) return;
     // Attempt to handle context-specific buttons before other handlers
     const contextHandled = await handleContextButtons(interaction);
     if (contextHandled) return;
