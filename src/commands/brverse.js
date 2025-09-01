@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const { nameToId, idToName } = require('../lib/books');
 const openReadingAdapter = require('../utils/openReadingAdapter');
 const contextRow = require('../ui/contextRow');
