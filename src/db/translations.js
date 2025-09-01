@@ -1,6 +1,11 @@
-const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+
+const STRONGS_REGEX = /(?:\{GH\d+\}|\[GH\d+\]|<GH\d+>)/gi;
+
+function stripStrongs(text) {
+  return text ? text.replace(STRONGS_REGEX, '') : text;
+}
 
 const FILES = {
   kjv_strongs: 'kjv_strongs.sqlite',
@@ -14,7 +19,7 @@ function createAdapter(translation = 'asv', options = {}) {
   if (!file) throw new Error(`Unknown translation: ${translation}`);
   const dbPath = path.join(__dirname, '..', '..', 'db', file);
   const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE);
-  const state = { db, columns: null, hasFts: false };
+  const state = { db, columns: null, hasFts: false, stripStrongs: !!options.stripStrongs };
 
   return introspect(state)
     .then(() => ensureLocIndex(state))
@@ -94,7 +99,10 @@ function getVerse(state, book, chapter, verse) {
   return new Promise((resolve, reject) => {
     state.db.get(sql, [book, chapter, verse], (err, row) => {
       if (err) reject(err);
-      else resolve(row || null);
+      else {
+        if (row && state.stripStrongs) row.text = stripStrongs(row.text);
+        resolve(row || null);
+      }
     });
   });
 }
@@ -102,7 +110,9 @@ function getVerse(state, book, chapter, verse) {
 function getChapter(state, book, chapter) {
   const c = state.columns;
   const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? ORDER BY ${c.verse}`;
-  return all(state.db, sql, [book, chapter]);
+  return all(state.db, sql, [book, chapter]).then((rows) =>
+    state.stripStrongs ? rows.map((r) => ({ ...r, text: stripStrongs(r.text) })) : rows
+  );
 }
 
 function getVersesSubset(state, book, chapter, verses) {
@@ -110,21 +120,33 @@ function getVersesSubset(state, book, chapter, verses) {
   if (!Array.isArray(verses) || verses.length === 0) return Promise.resolve([]);
   const placeholders = verses.map(() => '?').join(', ');
   const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.book}=? AND ${c.chapter}=? AND ${c.verse} IN (${placeholders}) ORDER BY ${c.verse}`;
-  return all(state.db, sql, [book, chapter, ...verses]);
+  return all(state.db, sql, [book, chapter, ...verses]).then((rows) =>
+    state.stripStrongs ? rows.map((r) => ({ ...r, text: stripStrongs(r.text) })) : rows
+  );
 }
 
 function search(state, query, limit = 10) {
   const c = state.columns;
   if (query === 'random') {
     const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses ORDER BY RANDOM() LIMIT ?`;
-    return all(state.db, sql, [limit]);
+    return all(state.db, sql, [limit]).then((rows) =>
+      state.stripStrongs ? rows.map((r) => ({ ...r, text: stripStrongs(r.text) })) : rows
+    );
   }
   if (state.hasFts) {
     const sql = `SELECT v.${c.book} AS book, v.${c.chapter} AS chapter, v.${c.verse} AS verse, snippet(verses_fts, 0, '<b>', '</b>', '...', 10) AS snippet FROM verses_fts JOIN verses v ON verses_fts.rowid = v.${c.id} WHERE verses_fts MATCH ? LIMIT ?`;
-    return all(state.db, sql, [query, limit]);
+    return all(state.db, sql, [query, limit]).then((rows) =>
+      state.stripStrongs
+        ? rows.map((r) => ({ ...r, snippet: stripStrongs(r.snippet) }))
+        : rows
+    );
   } else {
     const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS snippet FROM verses WHERE ${c.text} LIKE ? LIMIT ?`;
-    return all(state.db, sql, [`%${query}%`, limit]);
+    return all(state.db, sql, [`%${query}%`, limit]).then((rows) =>
+      state.stripStrongs
+        ? rows.map((r) => ({ ...r, snippet: stripStrongs(r.snippet) }))
+        : rows
+    );
   }
 }
 
