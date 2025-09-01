@@ -17,7 +17,7 @@ BibleRef is a comprehensive tool for Bible study and engagement, featuring the A
 
 ## Acknowledgments
 
-### Special thanks to the following repos:
+### Special thanks to the following:
    [Bible Super Search](https://biblesupersearch.com/bible-downloads) for the KJV, ASV and Strongs data.
 
    [Samleo8](https://github.com/Samleo8/BibleQuizzleDiscord) for some of the trivia questions.
