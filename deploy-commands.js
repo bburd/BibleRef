@@ -15,8 +15,12 @@ for (const dir of commandDirs) {
     .readdirSync(dir)
     .filter((file) => file.endsWith(".js"));
   for (const file of commandFiles) {
-    const command = require(`${dir}/${file}`);
-    commands.push(command.data.toJSON());
+    try {
+      const command = require(`${dir}/${file}`);
+      commands.push(command.data.toJSON());
+    } catch (err) {
+      console.error(`Failed to load command ${dir}/${file}:`, err);
+    }
   }
 }
 
