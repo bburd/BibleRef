@@ -1,13 +1,10 @@
 const { createAdapter } = require('./translations');
+const { stripStrongs } = require('./stripStrongs');
 
 const STRONGS_FALLBACK = {
   kjv: 'kjv_strongs',
   asv: 'asvs',
 };
-
-function stripStrongs(text) {
-  return text ? text.replace(/<[GH]\d+>/gi, '') : text;
-}
 
 async function openReading(translation = 'asv', options = {}) {
   try {

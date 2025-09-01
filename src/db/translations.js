@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
+const { stripStrongs } = require('./stripStrongs');
 
 const FILES = {
   kjv_strongs: 'kjv_strongs.sqlite',
@@ -15,16 +16,32 @@ function createAdapter(translation = 'asv', options = {}) {
   const dbPath = path.join(__dirname, '..', '..', 'db', file);
   const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE);
   const state = { db, columns: null, hasFts: false };
+  const strip = options.stripStrongs ? stripStrongs : (t) => t;
 
   return introspect(state)
     .then(() => ensureLocIndex(state))
     .then(() => ensureFts(state, options.fts))
     .then(() => ({
-      getVerse: (book, chapter, verse) => getVerse(state, book, chapter, verse),
-      getChapter: (book, chapter) => getChapter(state, book, chapter),
+      getVerse: (book, chapter, verse) =>
+        getVerse(state, book, chapter, verse).then((row) =>
+          row ? { ...row, text: strip(row.text) } : row
+        ),
+      getChapter: (book, chapter) =>
+        getChapter(state, book, chapter).then((rows) =>
+          rows.map((r) => ({ ...r, text: strip(r.text) }))
+        ),
       getVersesSubset: (book, chapter, verses) =>
-        getVersesSubset(state, book, chapter, verses),
-      search: (q, limit) => search(state, q, limit),
+        getVersesSubset(state, book, chapter, verses).then((rows) =>
+          rows.map((r) => ({ ...r, text: strip(r.text) }))
+        ),
+      search: (q, limit) =>
+        search(state, q, limit).then((rows) =>
+          rows.map((r) => {
+            if (r.snippet) return { ...r, snippet: strip(r.snippet) };
+            if (r.text) return { ...r, text: strip(r.text) };
+            return r;
+          })
+        ),
       close: () => db.close(),
       _db: state.db,
       _cols: state.columns,
