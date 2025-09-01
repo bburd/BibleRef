@@ -8,6 +8,7 @@ const { setupPlanScheduler } = require("./scheduler/planScheduler");
 const { seed } = require("./src/boot/seedPlans");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
+const { handleButtons: handleTriviaButtons } = require("./src/commands/brtrivia");
 const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 
@@ -97,6 +98,8 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   } else if (interaction.isButton()) {
+    const triviaHandled = await handleTriviaButtons(interaction);
+    if (triviaHandled) return;
     const lexHandled = await handleLexButtons(interaction);
     if (lexHandled) return;
     const searchHandled = await handleSearchButtons(interaction);
