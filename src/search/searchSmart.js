@@ -24,15 +24,15 @@ async function searchSmart(adapter, rawQuery, limit = 10) {
           const row = await adapter.getVerse(book, chapter, verses[0]);
           return row ? [row] : [];
         }
-        return adapter.getVersesSubset(book, chapter, verses);
+        return await adapter.getVersesSubset(book, chapter, verses);
       }
-      return adapter.getChapter(book, chapter);
+      return await adapter.getChapter(book, chapter);
     }
   }
 
   const safe = ftsSafeQuery(query);
   if (!safe) return [];
-  return adapter.search(safe, limit);
+  return await adapter.search(safe, limit);
 }
 
 module.exports = searchSmart;

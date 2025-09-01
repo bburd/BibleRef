@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { setUserTranslation } = require('../db/user-prefs');
 const { ephemeral } = require('../utils/ephemeral');
+const { validTrans } = require('../utils/validate');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -17,7 +18,7 @@ module.exports = {
         )
     ),
   async execute(interaction) {
-    const t = interaction.options.getString('set');
+    const t = validTrans(interaction.options.getString('set'));
     try {
       await setUserTranslation(interaction.user.id, t);
       await interaction.reply(

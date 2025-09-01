@@ -66,7 +66,7 @@ module.exports = {
       const timezone = interaction.options.getString('timezone');
       const channel =
         interaction.options.getChannel('channel') || interaction.channel;
-      if (!moment(time, 'HH:mm', true).isValid()) {
+      if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
         return interaction.reply(
           ephemeral({
             content: 'Invalid time format. Use HH:mm (24-hour).',
@@ -78,7 +78,7 @@ module.exports = {
           ephemeral({ content: 'Invalid timezone.' })
         );
       }
-      const norm = moment(time, 'HH:mm').format('HH:mm');
+      const norm = time;
       await setSettings(interaction.guild.id, channel.id, norm, timezone);
       await setupDailyVerse(interaction.client);
       await interaction.reply(
