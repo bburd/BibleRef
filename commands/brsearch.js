@@ -8,12 +8,12 @@ const {
 const { idToName } = require('../src/lib/books');
 const { openReading } = require('../src/db/openReading');
 const searchSmart = require('../src/search/searchSmart');
+const { searchSessions } = require('../src/state/sessions');
 
 const MAX_TEXT_RESULTS = 50;
 const MAX_TOPIC_RESULTS = 200;
 
 // msgId -> { type, query, translation, page, pageSize }
-const searchSessions = new Map();
 
 function buildButtons(sess, hasPrev, hasNext) {
   const buttons = [];

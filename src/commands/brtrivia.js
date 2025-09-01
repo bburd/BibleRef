@@ -8,8 +8,7 @@ const {
 const fs = require('fs').promises;
 const { addScore } = require('../db/trivia');
 const { ephemeral } = require('../utils/ephemeral');
-
-const activeTrivia = new Map();
+const { activeTrivia } = require('../state/sessions');
 
 async function loadTriviaQuestions() {
   const data = await fs.readFile('bible_trivia.json', 'utf8');
@@ -84,9 +83,7 @@ async function execute(interaction) {
     activeTrivia.set(message.id, {
       correct: correctLetter,
       answer: triviaQuestion.answer.trim(),
-      expires: Date.now() + 60000,
     });
-    setTimeout(() => activeTrivia.delete(message.id), 60000);
   } catch (err) {
     console.error('An error occurred while executing the trivia command:', err);
     await interaction.editReply('An error occurred during the game setup. Please try again later.');
@@ -98,7 +95,7 @@ async function handleButtons(interaction) {
   if (!id.startsWith('triv:')) return false;
   const choice = id.split(':')[1];
   const info = activeTrivia.get(interaction.message.id);
-  if (!info || Date.now() > info.expires) {
+  if (!info) {
     activeTrivia.delete(interaction.message.id);
     try {
       const row = new ActionRowBuilder().addComponents(
