@@ -1,10 +1,8 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const { AttachmentBuilder } = require('discord.js');
+const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
 const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
 const path = require('path');
 const { nameToId, idToName } = require('../lib/books');
-const openReadingAdapter = require('../utils/openReadingAdapter');
-const contextRow = require('../ui/contextRow');
+const { openReadingAdapter } = require('../db/openReading');
 
 // Register font
 const fontPath = path.join(__dirname, '..', '..', 'assets', 'Inter-Regular.ttf');
@@ -58,15 +56,6 @@ module.exports = {
         .setDescription('Verse number')
         .setRequired(true)
         .setAutocomplete(true)
-    )
-    .addStringOption(option =>
-      option
-        .setName('translation')
-        .setDescription('Bible translation')
-        .addChoices(
-          { name: 'ASV', value: 'asv' },
-          { name: 'KJV', value: 'kjv' }
-        )
     ),
 
   async execute(interaction) {
@@ -83,13 +72,15 @@ module.exports = {
       return;
     }
 
+    await interaction.deferReply();
+
     let adapter;
-    let translation;
+    const translation = 'asv';
     try {
-      ({ adapter, translation } = await openReadingAdapter(interaction));
+      adapter = await openReadingAdapter(translation);
       const result = await adapter.getVerse(bookId, chapter, verseNum);
       if (!result) {
-        await interaction.reply('Verse not found.');
+        await interaction.editReply('Verse not found.');
         return;
       }
       const bookName = idToName(result.book);
@@ -119,16 +110,10 @@ module.exports = {
 
       const buffer = canvas.toBuffer('image/png');
       const attachment = new AttachmentBuilder(buffer, { name: 'verse.png' });
-      const components = contextRow.build({
-        book: result.book,
-        chapter: result.chapter,
-        verse: result.verse,
-        translation,
-      });
-      await interaction.reply({ files: [attachment], components });
+      await interaction.editReply({ files: [attachment] });
     } catch (err) {
       console.error('Error fetching verse:', err);
-      await interaction.reply('There was an error fetching the verse.');
+      await interaction.editReply('There was an error fetching the verse.');
     } finally {
       if (adapter && adapter.close) adapter.close();
     }
