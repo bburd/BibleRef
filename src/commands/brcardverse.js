@@ -108,9 +108,9 @@ module.exports = {
       const refText = `${bookName} ${result.chapter}:${result.verse} (${translation.toUpperCase()})`;
       ctx.fillText(refText, margin, height - margin - 36);
 
-      const buffer = canvas.toBuffer('image/png');
-      const attachment = new AttachmentBuilder(buffer, { name: 'verse.png' });
-      await interaction.editReply({ files: [attachment] });
+      const png = await canvas.encode('png');
+      const file = new AttachmentBuilder(Buffer.from(png), { name: 'verse.png' });
+      await interaction.editReply({ files: [file] });
     } catch (err) {
       console.error('Error fetching verse:', err);
       await interaction.editReply('There was an error fetching the verse.');
