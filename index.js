@@ -63,12 +63,15 @@ if (fs.existsSync(buttonsPath)) {
   });
 }
 
-client.once("ready", async () => {
+async function onClientReady(client) {
   console.log(`Logged in as ${client.user.tag}`);
   await seed();
   setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
   setupPlanScheduler(client);
-});
+}
+
+client.once("clientReady", onClientReady);
+client.once("ready", onClientReady);
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete()) {
