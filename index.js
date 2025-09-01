@@ -63,6 +63,7 @@ if (fs.existsSync(buttonsPath)) {
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
+  require("./src/boot/seedPlans")();
   setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
   setupPlanScheduler(client);
 });
