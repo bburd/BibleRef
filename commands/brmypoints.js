@@ -1,5 +1,5 @@
 // commands/brmypoints.js
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { getScore } = require('../src/db/trivia');
 
 function getOrdinal(n) {
