@@ -1,43 +1,24 @@
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const { open } = require('./conn');
+const { pget, prun } = require('./p');
 
 const dbPath = path.join(__dirname, '..', '..', 'db', 'bot_settings.sqlite');
+const db = open(dbPath);
 
-function withDb(fn) {
-  return new Promise((resolve, reject) => {
-    const db = new sqlite3.Database(
-      dbPath,
-      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-      (err) => {
-        if (err) return reject(err);
-        db.serialize(() => {
-          db.run(
-            `CREATE TABLE IF NOT EXISTS user_prefs (
-              user_id TEXT PRIMARY KEY,
-              translation TEXT NOT NULL CHECK(translation IN ('asv','kjv')),
-              updated_at INTEGER
-            )`
-          );
-          db.run(
-            "UPDATE user_prefs SET translation = CASE translation WHEN 'asvs' THEN 'asv' WHEN 'kjv_strongs' THEN 'kjv' ELSE translation END WHERE translation IN ('asvs','kjv_strongs')",
-            (migrationErr) => {
-              if (migrationErr) {
-                db.close(() => reject(migrationErr));
-                return;
-              }
-              fn(db, (fnErr, result) => {
-                db.close((closeErr) => {
-                  if (fnErr || closeErr) reject(fnErr || closeErr);
-                  else resolve(result);
-                });
-              });
-            }
-          );
-        });
-      }
-    );
-  });
-}
+const init = (async () => {
+  await prun(
+    db,
+    `CREATE TABLE IF NOT EXISTS user_prefs (
+      user_id TEXT PRIMARY KEY,
+      translation TEXT NOT NULL CHECK(translation IN ('asv','kjv')),
+      updated_at INTEGER
+    )`
+  );
+  await prun(
+    db,
+    "UPDATE user_prefs SET translation = CASE translation WHEN 'asvs' THEN 'asv' WHEN 'kjv_strongs' THEN 'kjv' ELSE translation END WHERE translation IN ('asvs','kjv_strongs')"
+  );
+})();
 
 function normalizeTranslation(t) {
   if (!t) return t;
@@ -46,24 +27,20 @@ function normalizeTranslation(t) {
   return t;
 }
 
-function getUserTranslation(userId) {
-  return withDb((db, done) => {
-    db.get('SELECT translation FROM user_prefs WHERE user_id = ?', [userId], (err, row) => {
-      if (err) return done(err);
-      done(null, row ? normalizeTranslation(row.translation) : null);
-    });
-  });
+async function getUserTranslation(userId) {
+  await init;
+  const row = await pget(db, 'SELECT translation FROM user_prefs WHERE user_id = ?', [userId]);
+  return row ? normalizeTranslation(row.translation) : null;
 }
 
-function setUserTranslation(userId, translation) {
+async function setUserTranslation(userId, translation) {
+  await init;
   const now = Date.now();
   const normalized = normalizeTranslation(translation);
-  return withDb((db, done) => {
-    const sql = `INSERT INTO user_prefs (user_id, translation, updated_at)
+  const sql = `INSERT INTO user_prefs (user_id, translation, updated_at)
                  VALUES (?, ?, ?)
                  ON CONFLICT(user_id) DO UPDATE SET translation=excluded.translation, updated_at=excluded.updated_at`;
-    db.run(sql, [userId, normalized, now], done);
-  });
+  await prun(db, sql, [userId, normalized, now]);
 }
 
 module.exports = { getUserTranslation, setUserTranslation };
