@@ -5,7 +5,6 @@ const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
 const { setupPlanScheduler } = require("./scheduler/planScheduler");
-const { seed } = require("./src/boot/seedPlans");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
 const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
@@ -62,9 +61,8 @@ if (fs.existsSync(buttonsPath)) {
   });
 }
 
-client.once("ready", async () => {
+client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
-  await seed();
   setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
   setupPlanScheduler(client);
 });
