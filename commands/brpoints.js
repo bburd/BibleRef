@@ -1,5 +1,5 @@
 // commands/brpoints.js
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { EmbedBuilder } = require('discord.js');
 const { top } = require('../src/db/trivia');
 

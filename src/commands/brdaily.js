@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder } = require('discord.js');
 const { ChannelType } = require('discord.js');
 const moment = require('moment-timezone');
 const {
