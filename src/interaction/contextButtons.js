@@ -1,5 +1,6 @@
 const { openReadingAdapter } = require('../db/openReading');
 const { createAdapter } = require('../db/translations');
+const { pall } = require('../db/p');
 const { idToName } = require('../lib/books');
 const { unpack } = require('../ui/contextRow');
 const strongsDict = require('../../db/strongs-dictionary.json');
@@ -15,18 +16,10 @@ const STRONGS_TRANSLATIONS = {
 async function findXrefs(adapter, strongs, exclude) {
   const c = adapter._cols;
 
-  function all(sql, params) {
-    return new Promise((resolve, reject) => {
-      adapter._db.all(sql, params, (err, rows) =>
-        err ? reject(err) : resolve(rows)
-      );
-    });
-  }
-
   const counts = new Map();
   for (const strong of strongs) {
     const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse FROM verses WHERE ${c.text} LIKE ?`;
-    const rows = await all(sql, [`%<${strong}>%`]);
+    const rows = await pall(adapter._db, sql, [`%<${strong}>%`]);
     for (const r of rows) {
       if (r.book === exclude.book && r.chapter === exclude.chapter && r.verse === exclude.verse) continue;
       const key = `${r.book}:${r.chapter}:${r.verse}`;

@@ -1,5 +1,12 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const {
+  SlashCommandBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} = require('discord.js');
 const { createAdapter } = require('../db/translations');
+const { pall } = require('../db/p');
 const { idToName } = require('../lib/books');
 const strongsDict = require('../../db/strongs-dictionary.json');
 
@@ -31,12 +38,7 @@ async function findVersesByStrong(strong, page = 0, pageSize = PAGE_SIZE, transl
     const offset = page * pageSize;
     const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.text} LIKE ? ORDER BY ${c.book}, ${c.chapter}, ${c.verse} LIMIT ? OFFSET ?`;
     const pattern = `%{${strong}}%`;
-    const rows = await new Promise((resolve, reject) => {
-      adapter._db.all(sql, [pattern, pageSize + 1, offset], (err, res) => {
-        if (err) reject(err);
-        else resolve(res);
-      });
-    });
+    const rows = await pall(adapter._db, sql, [pattern, pageSize + 1, offset]);
     adapter.close();
     return rows;
   }
