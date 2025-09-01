@@ -2,7 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
 const { createCanvas, GlobalFonts } = require('@napi-rs/canvas');
 const path = require('path');
 const { nameToId, idToName } = require('../lib/books');
-const { openReadingAdapter } = require('../db/openReading');
+const openReadingAdapter = require('../utils/openReadingAdapter');
 
 // Register font
 const fontPath = path.join(__dirname, '..', '..', 'assets', 'Inter-Regular.ttf');
@@ -75,9 +75,9 @@ module.exports = {
     await interaction.deferReply();
 
     let adapter;
-    const translation = 'asv';
+    let translation;
     try {
-      adapter = await openReadingAdapter(translation);
+      ({ adapter, translation } = await openReadingAdapter(interaction));
       const result = await adapter.getVerse(bookId, chapter, verseNum);
       if (!result) {
         await interaction.editReply('Verse not found.');
