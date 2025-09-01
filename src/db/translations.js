@@ -1,11 +1,6 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-
-const STRONGS_REGEX = /(?:\{GH\d+\}|\[GH\d+\]|<GH\d+>)/gi;
-
-function stripStrongs(text) {
-  return text ? text.replace(STRONGS_REGEX, '') : text;
-}
+const { STRONGS_REGEX, stripStrongs } = require('./strongs');
 
 const FILES = {
   kjv_strongs: 'kjv_strongs.sqlite',
