@@ -45,4 +45,13 @@ async function openReading(translation = 'asv', options = {}) {
   }
 }
 
-module.exports = { openReading, openReadingAdapter: openReading };
+async function openReadingAdapter(preferred = 'asv', options = {}) {
+  try {
+    return await openReading(preferred, options);
+  } catch (err) {
+    const fallback = preferred === 'kjv' ? 'asv' : 'kjv';
+    return openReading(fallback, options);
+  }
+}
+
+module.exports = { openReading, openReadingAdapter };
