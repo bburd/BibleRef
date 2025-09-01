@@ -33,7 +33,7 @@ async function scheduleRow(client, row) {
         if (adapter && adapter.close) adapter.close();
       }
     },
-    { timezone: row.timezone || 'UTC' }
+    { timezone: row.timezone }
   );
   jobs.set(row.guild_id, job);
 }
