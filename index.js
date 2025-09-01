@@ -12,6 +12,7 @@ const { handleButtons: handleTriviaButtons } = require("./src/commands/brtrivia"
 const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 const { ephemeral } = require("./src/utils/ephemeral");
+const { activeTrivia, searchSessions } = require('./src/state/sessions');
 
 const client = new Client({
   intents: [
@@ -132,6 +133,11 @@ client.on("interactionCreate", async (interaction) => {
       }
     }
   }
+});
+
+client.on('messageDelete', (msg) => {
+  activeTrivia.delete(msg.id);
+  searchSessions.delete(msg.id);
 });
 
 client.login(process.env.TOKEN);
