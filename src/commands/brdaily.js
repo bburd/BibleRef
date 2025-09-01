@@ -41,6 +41,23 @@ module.exports = {
       sub.setName('clear').setDescription('Clear daily verse configuration')
     ),
   async execute(interaction) {
+    const allowed = process.env.BRDAILY_ALLOWED_ROLES;
+    const allowedRoles = allowed
+      ? allowed.split(',').map((id) => id.trim()).filter(Boolean)
+      : [];
+    if (
+      allowedRoles.length &&
+      !interaction.member.roles.cache.some((role) =>
+        allowedRoles.includes(role.id)
+      )
+    ) {
+      await interaction.reply({
+        content: 'You do not have permission to use this command.',
+        ephemeral: true,
+      });
+      return;
+    }
+
     const sub = interaction.options.getSubcommand();
     if (sub === 'set') {
       const time = interaction.options.getString('time');
