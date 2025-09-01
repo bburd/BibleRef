@@ -50,7 +50,14 @@ BibleRef relies on a small set of libraries to remain lightweight:
 
 ## Getting Started:
 
-To get started with this bot, you will need a hosting solution for Node.js and a host that allows a few SQLite databases (two translations and user settings). Check the setup guide for details. Clone the repository, configure the necessary settings in the config.json file, and run the bot on your server. The bot is designed to be easy to deploy and customize, making it a great addition to any Discord community focused on Bible study and fellowship.
+To run the bot locally:
+
+1. Clone this repository.
+2. Run `npm install` to install dependencies.
+3. Copy `env.example` to `.env`.
+4. Fill in all required values in `.env`.
+
+After configuration you can deploy commands and start the bot as needed for your environment.
 
 ## Full-text Search
 
@@ -73,16 +80,20 @@ Run the script whenever the translation databases change to keep search results 
 
 ## Configuration:
 
-The bot uses a .env configuration file (env.example) to store sensitive information securely. ***Do not send your .env to anyone!!***
+The bot uses a `.env` configuration file (see `env.example`) to store sensitive information securely. ***Do not send your `.env` to anyone!!***
+
+`BRDAILY_ALLOWED_ROLES` is a comma-separated list of Discord role IDs permitted to manage `/brdaily` scheduling commands (`set`, `clear`, `status`). If left blank, any member may use these subcommands.
+
 Here's a sample configuration file:
-### DO NOT COPY PASTE THE EXAMPLE BELOW. There is a env.example file that can be edited included.
-## You will need to rename your file to .env
-```
-#These can be generated/reset in the Discord Developer Portal.
+
+```env
+# These can be generated/reset in the Discord Developer Portal.
 TOKEN=YOUR_TOKEN
 CLIENT_ID=YOUR_CLIENTID
 # On Discord right click your server icon and copy Server ID
 GUILD_ID=YOUR_SERVERID
+# Comma-separated role IDs allowed to run /brdaily set|clear|status
+BRDAILY_ALLOWED_ROLES=
 # Rename this file to .env
 ```
 
