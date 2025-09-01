@@ -9,6 +9,8 @@ const { createAdapter } = require('../db/translations');
 const { pall } = require('../db/p');
 const { idToName } = require('../lib/books');
 const strongsDict = require('../../db/strongs-dictionary.json');
+const { validStrong } = require('../utils/validate');
+const { ephemeral } = require('../utils/ephemeral');
 
 const PAGE_SIZE = 5;
 
@@ -31,7 +33,26 @@ function decode(str) {
   }
 }
 
-async function findVersesByStrong(strong, page = 0, pageSize = PAGE_SIZE, translation) {
+async function findVersesByStrong(arg1, arg2, arg3 = 0, arg4 = PAGE_SIZE) {
+  let strong;
+  let page;
+  let pageSize;
+  let translation;
+  let returnRowsOnly = false;
+
+  if (validStrong(arg1)) {
+    strong = arg1;
+    page = arg2 ?? 0;
+    pageSize = arg3 ?? PAGE_SIZE;
+    translation = arg4;
+  } else {
+    translation = arg1;
+    strong = arg2;
+    page = arg3 ?? 0;
+    pageSize = arg4 ?? PAGE_SIZE;
+    returnRowsOnly = true;
+  }
+
   async function query(t) {
     const adapter = await createAdapter(t);
     const c = adapter._cols;
@@ -49,7 +70,7 @@ async function findVersesByStrong(strong, page = 0, pageSize = PAGE_SIZE, transl
     chosenTranslation = 'asvs';
     rows = await query(chosenTranslation);
   }
-  return { rows, translation: chosenTranslation };
+  return returnRowsOnly ? rows : { rows, translation: chosenTranslation };
 }
 
 function cleanText(text) {
@@ -114,6 +135,12 @@ async function commandExecute(interaction) {
   const sub = interaction.options.getSubcommand();
   if (sub === 'id') {
     const strong = (interaction.options.getString('value') || '').toUpperCase();
+    if (!validStrong(strong)) {
+      await interaction.reply(
+        ephemeral({ content: "Invalid Strong's code. Use format G#### or H####." })
+      );
+      return;
+    }
     const entry = strongsDict[strong];
     const { rows, translation } = await findVersesByStrong(strong, 0, PAGE_SIZE);
     const embed = lexEmbed(strong, entry, rows, 0);

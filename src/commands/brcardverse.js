@@ -4,6 +4,7 @@ const path = require('path');
 const { nameToId, idToName } = require('../lib/books');
 const openReadingAdapter = require('../utils/openReadingAdapter');
 const { ephemeral } = require('../utils/ephemeral');
+const { validRefNums } = require('../utils/validate');
 
 // Register font
 const fontPath = path.join(__dirname, '..', '..', 'assets', 'Inter-Regular.ttf');
@@ -63,6 +64,12 @@ module.exports = {
     const bookArg = interaction.options.getString('book');
     const chapter = interaction.options.getInteger('chapter');
     const verseNum = interaction.options.getInteger('verse');
+    if (!validRefNums(chapter) || !validRefNums(verseNum)) {
+      await interaction.reply(
+        ephemeral({ content: 'Invalid chapter or verse number.' })
+      );
+      return;
+    }
 
     let bookId = Number(bookArg);
     if (Number.isNaN(bookId)) {

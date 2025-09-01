@@ -9,6 +9,7 @@ const { idToName } = require('../src/lib/books');
 const { openReading } = require('../src/db/openReading');
 const searchSmart = require('../src/search/searchSmart');
 const { searchSessions } = require('../src/state/sessions');
+const { clampLen } = require('../src/utils/validate');
 
 const MAX_TEXT_RESULTS = 50;
 const MAX_TOPIC_RESULTS = 200;
@@ -92,7 +93,11 @@ async function execute(interaction) {
   await interaction.deferReply();
   try {
     const type = interaction.options.getSubcommand() === 'topic' ? 'topic' : 'text';
-    const query = interaction.options.getString('query');
+    const query = clampLen(interaction.options.getString('query') || '');
+    if (!query.trim()) {
+      await interaction.editReply({ content: 'Query cannot be empty.', components: [] });
+      return;
+    }
     const translation = (interaction.options.getString('translation') || 'asv').toLowerCase();
     const pageSize = 10;
     let page = 0;
@@ -110,18 +115,22 @@ async function execute(interaction) {
       return;
     }
 
+    const content = clampLen(renderItems(items), 2000);
     const embed = new EmbedBuilder()
       .setTitle(`Search: ${query}`)
-      .setDescription(renderItems(items))
+      .setDescription(content.slice(0, 4096))
       .setFooter({ text: `Page ${page + 1}` });
 
     const sent = await interaction.editReply({
+      content,
       embeds: [embed],
       components: buildButtons({ type, query, translation, page, pageSize }, false, hasNext),
       fetchReply: true,
     });
 
-    searchSessions.set(sent.id, { type, query, translation, page, pageSize });
+    if (sent && sent.id) {
+      searchSessions.set(sent.id, { type, query, translation, page, pageSize });
+    }
   } catch (err) {
     console.error('Error executing brsearch command:', err);
     await interaction.editReply('An error occurred while executing this command.');
