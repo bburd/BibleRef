@@ -75,6 +75,14 @@ BibleRef is a compact, self-hostable Discord bot for Bible study, daily engageme
 - Plans & progress stored in SQLite for concurrency-safe updates.
 - Bundled plans:
   - genesis-3day — Genesis Three Day Plan
+  - starter-14 — Gospel Starter (14 days)
+  - john-21 — John in 21 Days
+  - ps-prov-31 — Psalms & Proverbs (31 days)
+  - nt-90 — New Testament in 90 Days
+  - doctrines-14 — Key Doctrines (14 days)
+  - gospel-harmony-40 — Harmony of the Gospels (40 days)
+  - prayer-psalms-30 — Praying the Psalms (30 days)
+  - attributes-21 — Attributes of God (21 days)
 #### 6a) Adding new plans
 - Read guide below.
 
