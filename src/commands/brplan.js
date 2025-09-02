@@ -5,8 +5,8 @@ const {
   completeDay,
   getUserPlan,
   stopPlan,
+  listPlanDefs,
 } = require('../db/plans');
-const planDefs = require('../../plan_defs.json');
 const { ephemeral } = require('../utils/ephemeral');
 const { formatDay } = require('../lib/plan-normalize');
 
@@ -18,11 +18,9 @@ module.exports = {
       sub
         .setName('start')
         .setDescription('Start a reading plan')
-        .addStringOption((opt) => {
-          opt.setName('plan').setDescription('Plan ID').setRequired(true);
-          planDefs.forEach((p) => opt.addChoices({ name: p.name, value: p.id }));
-          return opt;
-        })
+        .addStringOption((opt) =>
+          opt.setName('plan').setDescription('Plan ID').setRequired(true)
+        )
     )
     .addSubcommand((sub) =>
       sub.setName('status').setDescription('Show your reading plan status')
@@ -41,8 +39,10 @@ module.exports = {
       try {
         const plan = await getPlanDef(planId);
         if (!plan) {
+          const plans = await listPlanDefs();
+          const available = plans.map((p) => p.id).join(', ') || 'none';
           await interaction.reply(
-            ephemeral({ content: 'Plan not found.' })
+            ephemeral({ content: `Plan not found. Available plans: ${available}` })
           );
           return;
         }
