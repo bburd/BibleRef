@@ -70,9 +70,33 @@ BibleRef is a compact, self-hostable Discord bot for Bible study, daily engageme
 - `/brcardverse John 3 16` → clean PNG card (verse + reference) for sharing.
 
 ### 6) Reading Plans
-- `/brplan start j7` (John 1–7) → DMs Day 1.  
-- `/brplan complete` advances; `/brplan status`, `/brplan stop` manage state.  
+- `/brplan start j7` (John 1–7) → DMs Day 1.
+- `/brplan complete` advances; `/brplan status`, `/brplan stop` manage state.
 - Plans & progress stored in SQLite for concurrency-safe updates.
+- Bundled plans:
+  - genesis-3day — Genesis Three Day Plan
+
+#### Adding new plans
+Append new entries to `plan_defs.json`, each with:
+- `id`
+- `name`
+- `description`
+- `days`: array of reading objects
+
+Example:
+
+```json
+{
+  "id": "psalms-1day",
+  "name": "Psalms One Day Plan",
+  "description": "Read Psalms 1-3 in a single day",
+  "days": [
+    { "readings": [ { "book": 19, "ranges": [ { "chapter": 1 }, { "chapter": 2 }, { "chapter": 3 } ] } ] }
+  ]
+}
+```
+
+Restart the bot or rerun `node src/boot/seedPlans.js` to load changes.
 
 ### 7) Translation Preference
 - `/brtranslation set asv|kjv` — stored per user in `db/bot_settings.sqlite`.
