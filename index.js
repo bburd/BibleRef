@@ -13,6 +13,9 @@ const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 const { ephemeral } = require("./src/utils/ephemeral");
 const { activeTrivia, searchSessions } = require('./src/state/sessions');
 
+try { require('./src/boot/seedPlans').seedAll(); }
+catch (e) { console.warn('[seedPlans] skipped:', e.message); }
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
