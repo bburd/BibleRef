@@ -19,4 +19,10 @@ function prun(db, sql, params = []) {
   });
 }
 
-module.exports = { pget, pall, prun };
+function pexec(db, sql) {
+  return new Promise((resolve, reject) => {
+    db.exec(sql, (err) => (err ? reject(err) : resolve(db)));
+  });
+}
+
+module.exports = { pget, pall, prun, pexec };
