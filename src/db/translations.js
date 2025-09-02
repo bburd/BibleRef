@@ -1,5 +1,5 @@
 const path = require('path');
-const { open } = require('./conn');
+const { open, close: closeConn } = require('./conn');
 const { pget, pall, prun, pexec } = require('./p');
 const { STRONGS_REGEX, stripStrongs } = require('./strongs');
 
@@ -38,7 +38,7 @@ async function createAdapter(translation = 'asv', options = {}) {
       return pget(db, randomSql).then((row) => maybeStrip(row) || null);
     },
     close() {
-      db.close();
+      closeConn(db);
     },
     _db: state.db,
     _cols: state.columns,

@@ -7,10 +7,24 @@ const pool = new Map();
 function open(filePath, mode = sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE) {
   const full = path.resolve(filePath);
   const key = `${full}|${mode}`;
-  if (pool.has(key)) return pool.get(key);
+  if (pool.has(key)) {
+    const cached = pool.get(key);
+    if (cached.open !== 0) return cached;
+    pool.delete(key);
+  }
   const db = new sqlite3.Database(full, mode);
   pool.set(key, db);
   return db;
+}
+
+function close(db) {
+  for (const [key, value] of pool.entries()) {
+    if (value === db) {
+      pool.delete(key);
+      break;
+    }
+  }
+  db.close();
 }
 
 async function closeAll() {
@@ -34,4 +48,4 @@ process.on('SIGINT', () => {
     .catch(() => process.exit(1));
 });
 
-module.exports = { open, closeAll };
+module.exports = { open, close, closeAll };
