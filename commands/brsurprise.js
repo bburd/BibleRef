@@ -46,12 +46,16 @@ module.exports.execute = async (interaction) => {
   if (userPref === 'asvs') userPref = 'asv';
   if (userPref === 'kjv_strongs') userPref = 'kjv';
   const t = forced || userPref || 'asv';
+  try {
+    const row = await drawRandom(t);
+    if (!row) return interaction.editReply({ content: 'No verse available.', flags: 64 });
 
-  const row = await drawRandom(t);
-  if (!row) return interaction.editReply({ content: 'No verse available.', flags: 64 });
-
-  const embed = buildEmbed(row, t);
-  await interaction.editReply({ content: null, embeds: [embed], components: [buildRow()] });
+    const embed = buildEmbed(row, t);
+    await interaction.editReply({ content: null, embeds: [embed], components: [buildRow()] });
+  } catch (err) {
+    console.error('Failed to fetch random verse:', err);
+    await interaction.editReply({ content: 'Failed to fetch verse.', flags: 64 });
+  }
 };
 
 module.exports.handleButtons = async (interaction) => {
@@ -65,14 +69,19 @@ module.exports.handleButtons = async (interaction) => {
   if (userPref === 'asvs') userPref = 'asv';
   if (userPref === 'kjv_strongs') userPref = 'kjv';
   const t = fromEmbed || userPref || 'asv';
-
-  const row = await drawRandom(t);
-  if (!row) {
-    await interaction.reply({ content: 'No verse available.', flags: 64 });
+  try {
+    const row = await drawRandom(t);
+    if (!row) {
+      await interaction.editReply({ content: 'No verse available.', flags: 64 });
+      return true;
+    }
+    const pageTag = '(another)';
+    const embed = buildEmbed(row, t, pageTag);
+    await interaction.update({ content: null, embeds: [embed], components: [buildRow()] });
+    return true;
+  } catch (err) {
+    console.error('Failed to fetch random verse:', err);
+    await interaction.editReply({ content: 'Failed to fetch verse.', flags: 64 });
     return true;
   }
-  const pageTag = '(another)';
-  const embed = buildEmbed(row, t, pageTag);
-  await interaction.update({ content: null, embeds: [embed], components: [buildRow()] });
-  return true;
 };
