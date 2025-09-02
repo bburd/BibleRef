@@ -8,6 +8,7 @@ const {
 } = require('../db/plans');
 const planDefs = require('../../plan_defs.json');
 const { ephemeral } = require('../utils/ephemeral');
+const { formatDay } = require('../lib/plan-normalize');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -46,15 +47,17 @@ module.exports = {
           return;
         }
         await startPlan(userId, planId);
-        const reading = plan.days[0];
+        const dayReadings = plan.days[0];
+        const title = dayReadings && dayReadings._meta && dayReadings._meta.title;
+        const body = `Day 1${title ? `: ${title}` : ':'}\n${formatDay(dayReadings)}`;
         try {
-          await interaction.user.send(`Day 1: ${reading}`);
+          await interaction.user.send(body);
         } catch (err) {
           console.error('Failed to send DM:', err);
         }
         await interaction.reply(
           ephemeral({
-            content: `Started plan **${plan.name}**. First reading sent via DM.`,
+            content: `Started plan **${plan.name}**. Day 1 of ${plan.days.length} sent via DM.`,
           })
         );
       } catch (err) {
@@ -101,10 +104,15 @@ module.exports = {
       }
     } else if (sub === 'complete') {
       try {
-        const { nextReading, streak, nextDay } = await completeDay(userId);
-        if (nextReading) {
+        const { plan, nextDayReadings, streak, nextDay } = await completeDay(userId);
+        if (nextDayReadings) {
+          const title =
+            nextDayReadings._meta && nextDayReadings._meta.title;
+          const body = `Day ${nextDay + 1}${
+            title ? `: ${title}` : ':'
+          }\n${formatDay(nextDayReadings)}`;
           try {
-            await interaction.user.send(`Day ${nextDay + 1}: ${nextReading}`);
+            await interaction.user.send(body);
           } catch (err) {
             console.error('Failed to send DM:', err);
           }
@@ -117,7 +125,7 @@ module.exports = {
         }
         await interaction.reply(
           ephemeral({
-            content: `Day ${nextDay} completed. Current streak: ${streak}`,
+            content: `Day ${nextDay} of ${plan.days.length} completed. Current streak: ${streak}`,
           })
         );
       } catch (err) {

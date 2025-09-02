@@ -11,11 +11,16 @@ const db = open(dbPath);
 const planId = 'roundtrip-test';
 const userId = 'u1';
 const days = [
-  [{ book: 1, ranges: [{ chapter: 1 }] }],
-  [{ book: 1, ranges: [{ chapter: 2 }] }],
+  { readings: [{ book: 1, ranges: [{ chapter: 1 }] }] },
+  {
+    readings: [
+      { book: 1, ranges: [{ chapter: 2 }] },
+      { book: 2, ranges: [{ chapter: 3 }] },
+    ],
+  },
 ];
 
-test('plans DB round-trip with normalized days', async (t) => {
+test('plans DB round-trip with normalized multi-reading days', async (t) => {
   await getAllPlanDefs();
   await prun(
     db,
