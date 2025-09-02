@@ -1,0 +1,866 @@
+  {
+    "id": "gospel-harmony-40",
+    "name": "Harmony of the Gospels (40 days)",
+    "description": "Key events across the four Gospels.",
+    "days": [
+      {
+        "_meta": {
+          "title": "Prologue & Annunciation"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 1,
+            "verses": [
+              1,
+              14
+            ]
+          },
+          {
+            "book": "Luke",
+            "chapter": 1,
+            "verses": [
+              26,
+              27,
+              28,
+              31,
+              32,
+              35
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Baptism of Jesus"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 3,
+            "verses": [
+              13,
+              14,
+              15,
+              16,
+              17
+            ]
+          },
+          {
+            "book": "John",
+            "chapter": 1,
+            "verses": [
+              29,
+              34
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Temptation in the Wilderness"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 4,
+            "verses": [
+              1,
+              2,
+              3,
+              10,
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "First Disciples"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 1,
+            "verses": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42
+            ]
+          },
+          {
+            "book": "Mark",
+            "chapter": 1,
+            "verses": [
+              16,
+              17,
+              18,
+              19,
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Wedding at Cana"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 2,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Nicodemus by Night"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 3,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              16,
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Woman at the Well"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 4,
+            "verses": [
+              5,
+              6,
+              7,
+              10,
+              13,
+              14,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Beatitudes"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 5,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Teach Us to Pray"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 6,
+            "verses": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          },
+          {
+            "book": "Luke",
+            "chapter": 11,
+            "verses": [
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Healing the Paralytic"
+        },
+        "readings": [
+          {
+            "book": "Mark",
+            "chapter": 2,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              10,
+              11,
+              12
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Calming the Storm"
+        },
+        "readings": [
+          {
+            "book": "Mark",
+            "chapter": 4,
+            "verses": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Feeding the 5,000"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 14,
+            "verses": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Walking on Water"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 14,
+            "verses": [
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Bread of Life"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 6,
+            "verses": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Peter’s Confession"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 16,
+            "verses": [
+              13,
+              14,
+              15,
+              16,
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Transfiguration"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 17,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "The Good Shepherd"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 10,
+            "verses": [
+              11,
+              27,
+              28,
+              29,
+              30
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Raising Lazarus"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 11,
+            "verses": [
+              25,
+              26,
+              27,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Zacchaeus"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 19,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Triumphal Entry"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 19,
+            "verses": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Cleansing the Temple"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 21,
+            "verses": [
+              12,
+              13
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Parable of the Tenants"
+        },
+        "readings": [
+          {
+            "book": "Mark",
+            "chapter": 12,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Greatest Commandment"
+        },
+        "readings": [
+          {
+            "book": "Mark",
+            "chapter": 12,
+            "verses": [
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Olivet Discourse (Signs)"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 24,
+            "verses": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Last Supper"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 22,
+            "verses": [
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Gethsemane"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 26,
+            "verses": [
+              36,
+              37,
+              38,
+              39,
+              40,
+              41
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Before the Sanhedrin"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 26,
+            "verses": [
+              63,
+              64,
+              65,
+              66,
+              67,
+              68
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Peter’s Denial"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 22,
+            "verses": [
+              60,
+              61,
+              62
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Crucifixion"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 23,
+            "verses": [
+              33,
+              34,
+              42,
+              46
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Burial"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 27,
+            "verses": [
+              57,
+              58,
+              59,
+              60
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Resurrection: Empty Tomb"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 28,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Road to Emmaus"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 24,
+            "verses": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Doubting Thomas"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 20,
+            "verses": [
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Great Commission"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 28,
+            "verses": [
+              18,
+              19,
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Ascension"
+        },
+        "readings": [
+          {
+            "book": "Acts",
+            "chapter": 1,
+            "verses": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Pentecost"
+        },
+        "readings": [
+          {
+            "book": "Acts",
+            "chapter": 2,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              36,
+              37,
+              38,
+              39
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Let the Children Come"
+        },
+        "readings": [
+          {
+            "book": "Mark",
+            "chapter": 10,
+            "verses": [
+              13,
+              14,
+              15,
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Lost Sheep"
+        },
+        "readings": [
+          {
+            "book": "Luke",
+            "chapter": 15,
+            "verses": [
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Vine & Branches"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 15,
+            "verses": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              8,
+              9
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "I Am With You Always"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 28,
+            "verses": [
+              20
+            ]
+          },
+          {
+            "book": "John",
+            "chapter": 14,
+            "verses": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      }
+    ]
+  }
