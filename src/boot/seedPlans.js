@@ -38,3 +38,10 @@ async function seed() {
 }
 
 module.exports = { seed };
+
+if (require.main === module) {
+  seed().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
