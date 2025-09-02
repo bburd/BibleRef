@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const path = require('path');
 const { open, closeAll } = require('../src/db/conn');
 const { prun } = require('../src/db/p');
-const { startPlan, completeDay, getPlanDef, stopPlan, getAllPlanDefs } = require('../src/db/plans');
+const { startPlan, completeDay, getPlanDef, stopPlan, listPlanDefs } = require('../src/db/plans');
 
 const dbPath = path.join(__dirname, '..', 'db', 'bot_settings.sqlite');
 const db = open(dbPath);
@@ -21,7 +21,7 @@ const days = [
 ];
 
 test('plans DB round-trip with normalized multi-reading days', async (t) => {
-  await getAllPlanDefs();
+  await listPlanDefs();
   await prun(
     db,
     'INSERT OR REPLACE INTO plan_defs (id, name, description, days) VALUES (?, ?, ?, ?)',

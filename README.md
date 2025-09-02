@@ -308,12 +308,6 @@ Each **reading** is an object:
 - **Description**: 1–2 sentences; shows up in UIs later.
 - **Tags** (optional): strings like `ot`, `nt`, `gospel`, `wisdom`, `prayer`. Future versions can filter by tags.
 
-### Where to add plans
-Append each plan object to `plan_defs.json` (top‑level JSON array).
-
->[!IMPORTANT]
-> After adding or editing plans, **restart the bot** (or run `node src/boot/seedPlans.js` if you prefer).
-
 ### How the bot renders a day
 - If `verses` is `null` → it prints the whole chapter.
 - If `verses` is a list → it prints just those verses.
