@@ -138,6 +138,19 @@ async function resetStreak(userId) {
   await prun(db, 'UPDATE user_plans SET streak = 0 WHERE user_id = ?', [userId]);
 }
 
+async function upsertPlanDef(plan) {
+  await init;
+  const { id, name, description = '', days = [] } = plan;
+  const exists = await pget(db, 'SELECT 1 FROM plan_defs WHERE id = ?', [id]);
+  await prun(
+    db,
+    `INSERT INTO plan_defs (id, name, description, days) VALUES (?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET name=excluded.name, description=excluded.description, days=excluded.days`,
+    [id, name, description, JSON.stringify(days)]
+  );
+  return exists ? 'updated' : 'inserted';
+}
+
 module.exports = {
   getAllPlanDefs,
   getPlanDef,
@@ -148,4 +161,5 @@ module.exports = {
   resetStreak,
   getUserPlan,
   stopPlan,
+  upsertPlanDef,
 };
