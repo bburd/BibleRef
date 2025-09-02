@@ -60,7 +60,6 @@ async function findVersesByStrong(arg1, arg2, arg3 = 0, arg4 = PAGE_SIZE) {
     const sql = `SELECT ${c.book} AS book, ${c.chapter} AS chapter, ${c.verse} AS verse, ${c.text} AS text FROM verses WHERE ${c.text} LIKE ? ORDER BY ${c.book}, ${c.chapter}, ${c.verse} LIMIT ? OFFSET ?`;
     const pattern = `%{${strong}}%`;
     const rows = await pall(adapter._db, sql, [pattern, pageSize + 1, offset]);
-    adapter.close();
     return rows;
   }
 

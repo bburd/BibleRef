@@ -8,7 +8,8 @@ const {
   listPlanDefs,
 } = require('../db/plans');
 const { ephemeral } = require('../utils/ephemeral');
-const { formatDay } = require('../lib/plan-normalize');
+const { formatDayWithText } = require('../lib/plan-format-text');
+const { getUserTranslation } = require('../db/users');
 
 async function build() {
   const plans = await listPlanDefs();
@@ -64,9 +65,12 @@ module.exports = {
         await startPlan(userId, planId);
         const dayReadings = plan.days[0];
         const title = dayReadings && dayReadings._meta && dayReadings._meta.title;
-        const body = `Day 1${title ? `: ${title}` : ':'}\n${formatDay(dayReadings)}`;
+        const translation = (await getUserTranslation(userId)) || 'asv';
+        const body = await formatDayWithText(dayReadings, translation);
         try {
-          await interaction.user.send(body);
+          await interaction.user.send(
+            `Day 1${title ? `: ${title}` : ':'}\n${body}`
+          );
         } catch (err) {
           console.error('Failed to send DM:', err);
         }
@@ -122,11 +126,12 @@ module.exports = {
         const { plan, nextDayReadings, streak, nextDay } = await completeDay(userId);
         if (nextDayReadings) {
           const title = nextDayReadings._meta && nextDayReadings._meta.title;
-          const body = `Day ${nextDay + 1}${
-            title ? `: ${title}` : ':'
-          }\n${formatDay(nextDayReadings)}`;
+          const translation = (await getUserTranslation(userId)) || 'asv';
+          const body = await formatDayWithText(nextDayReadings, translation);
           try {
-            await interaction.user.send(body);
+            await interaction.user.send(
+              `Day ${nextDay + 1}${title ? `: ${title}` : ':'}\n${body}`
+            );
           } catch (err) {
             console.error('Failed to send DM:', err);
           }

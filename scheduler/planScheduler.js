@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const plansDb = require('../src/db/plans');
-const { formatDay } = require('../src/lib/plan-normalize');
+const { formatDayWithText } = require('../src/lib/plan-format-text');
+const { getUserTranslation } = require('../src/db/users');
 
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -24,8 +25,9 @@ async function checkPlans(client) {
     try {
       const user = await client.users.fetch(p.user_id);
       const title = dayReadings._meta && dayReadings._meta.title;
-      let body = `Day ${p.day + 1}${title ? `: ${title}` : ':'}\n${formatDay(dayReadings)}`;
-      await user.send(body);
+      const translation = (await getUserTranslation(p.user_id)) || 'asv';
+      const body = await formatDayWithText(dayReadings, translation);
+      await user.send(`Day ${p.day + 1}${title ? `: ${title}` : ':'}\n${body}`);
       await plansDb.updateLastNotified(p.user_id, todayStr);
       if (p.last_completed !== yest) {
         await plansDb.resetStreak(p.user_id);
