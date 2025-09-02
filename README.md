@@ -75,28 +75,8 @@ BibleRef is a compact, self-hostable Discord bot for Bible study, daily engageme
 - Plans & progress stored in SQLite for concurrency-safe updates.
 - Bundled plans:
   - genesis-3day — Genesis Three Day Plan
-
-#### Adding new plans
-Append new entries to `plan_defs.json`, each with:
-- `id`
-- `name`
-- `description`
-- `days`: array of reading objects
-
-Example:
-
-```json
-{
-  "id": "psalms-1day",
-  "name": "Psalms One Day Plan",
-  "description": "Read Psalms 1-3 in a single day",
-  "days": [
-    { "readings": [ { "book": 19, "ranges": [ { "chapter": 1 }, { "chapter": 2 }, { "chapter": 3 } ] } ] }
-  ]
-}
-```
-
-Restart the bot or rerun `node src/boot/seedPlans.js` to load changes.
+#### 6a) Adding new plans
+- Read guide below.
 
 ### 7) Translation Preference
 - `/brtranslation set asv|kjv` — stored per user in `db/bot_settings.sqlite`.
@@ -225,6 +205,114 @@ node db/migrate-fts.js
 ```
 
 Run again whenever you change/replace any of the translation databases.
+
+---
+
+## 📖 Reading Plans — How to Add Your Own
+
+A **plan** is a JSON object with:
+- `id`: a short unique id you’ll use in `/brplan start <id>` (e.g., `"john-21"`)
+- `name`: friendly title
+- `description`: one‑line summary
+- `days`: an **array** with one entry per day
+
+Each **day** can be either:
+1. **Simple form** – just an array of readings for that day:
+   ```json
+   [
+     { "book": "John", "chapter": 3, "verses": [16,17,18] },
+     { "book": "Psalms", "chapter": 23, "verses": null }
+   ]
+   ```
+2. **With metadata** – an object with a title/note and a `readings` array:
+   ```json
+   {
+     "_meta": { "title": "Beatitudes", "note": "Memorize 5:3‑10" },
+     "readings": [
+       { "book": "Matthew", "chapter": 5, "verses": [1,2,3,4,5,6,7,8,9,10,11,12] }
+     ]
+   }
+   ```
+
+Each **reading** is an object:
+- `book`: either the **name** (`"John"`, `"1 Peter"`) or the **number** (e.g., `43`)  
+  > Names are easier to read; the bot maps names to IDs internally.
+- `chapter`: number (1‑150 depending on the book)
+- `verses`: one of:
+  - `null` → the whole chapter
+  - a **list of verse numbers** → e.g., `[16,17,18,21]` (discrete picks)
+  - a **compact string** (optional if you enable it) → e.g., `"1-14, 26-27"`; the bot’s parser can expand this to numbers
+
+**Optional**: `tags` for future filtering/searching, e.g. `["nt","gospel"]` or `["ot","wisdom"]`.
+
+### Example: three real plans
+
+**Genesis Three Day Plan**
+```json
+{
+  "id": "genesis-3day",
+  "name": "Genesis Three Day Plan",
+  "description": "Read Genesis 1–3 over three days",
+  "days": [
+    [ { "book": "Genesis", "chapter": 1, "verses": null, "tags": ["ot"] } ],
+    [ { "book": "Genesis", "chapter": 2, "verses": null, "tags": ["ot"] } ],
+    [ { "book": "Genesis", "chapter": 3, "verses": null, "tags": ["ot"]  } ]
+  ]
+}
+```
+
+**John in 21 Days**
+```json
+{
+  "id": "john-21",
+  "name": "John in 21 Days",
+  "description": "Read the Gospel of John, one chapter per day.",
+  "days": [
+    [ { "book": "John", "chapter": 1, "verses": null } ],
+    [ { "book": "John", "chapter": 2, "verses": null } ]
+    // …continue through chapter 21
+  ]
+}
+```
+
+**Attributes of God (21 days) — day with a title**
+```json
+{
+  "id": "attributes-21",
+  "name": "Attributes of God (21 days)",
+  "description": "Holiness, love, justice, mercy, immutability, and more.",
+  "days": [
+    {
+      "_meta": { "title": "Holiness" },
+      "readings": [
+        { "book": "Isaiah", "chapter": 6, "verses": [1,2,3,5] },
+        { "book": "1 Peter", "chapter": 1, "verses": [15,16] }
+      ]
+    }
+  ]
+}
+```
+
+### IDs, names, and tags (best practices)
+
+- **IDs**: short, URL‑safe, and unique (e.g., `john-21`, `ps-prov-31`, `nt-90`). Users type this in `/brplan start <id>`.
+- **Names**: human‑friendly (“New Testament in 90 Days”).
+- **Description**: 1–2 sentences; shows up in UIs later.
+- **Tags** (optional): strings like `ot`, `nt`, `gospel`, `wisdom`, `prayer`. Future versions can filter by tags.
+
+### Where to add plans
+Append each plan object to `plan_defs.json` (top‑level JSON array).
+
+>[!IMPORTANT]
+> After adding or editing plans, **restart the bot** (or run `node src/boot/seedPlans.js` if you prefer).
+
+### How the bot renders a day
+- If `verses` is `null` → it prints the whole chapter.
+- If `verses` is a list → it prints just those verses.
+- If you enable compact strings (like `"1-14, 26-27"`), the parser expands them into numbers then prints them neatly.
+- If `_meta.title` exists, it prefixes the DM with `Day N: <title>`.
+
+**Tip:** keep a single day’s total text under ~1800 characters so it fits comfortably in a DM. Split long days into two readings or two days.
 
 ---
 
