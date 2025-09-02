@@ -66,6 +66,11 @@ function normalizeDays(days) {
   return days.map(normalizeDay);
 }
 
+function normalizePlan(plan = {}) {
+  const { days, ...rest } = plan;
+  return { ...rest, days: normalizeDays(days) };
+}
+
 function formatReading(reading) {
   if (!reading) return '';
   const bookName = idToName(reading.book) || '';
@@ -124,4 +129,4 @@ function formatDay(day) {
   return lines.join('\n');
 }
 
-module.exports = { normalizeDays, formatReading, formatDay };
+module.exports = { normalizeDays, normalizePlan, formatReading, formatDay };
