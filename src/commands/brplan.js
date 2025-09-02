@@ -10,17 +10,22 @@ const {
 const { ephemeral } = require('../utils/ephemeral');
 const { formatDay } = require('../lib/plan-normalize');
 
-module.exports = {
-  data: new SlashCommandBuilder()
+async function build() {
+  const plans = await listPlanDefs();
+  const builder = new SlashCommandBuilder()
     .setName('brplan')
     .setDescription('Manage reading plans')
     .addSubcommand((sub) =>
       sub
         .setName('start')
         .setDescription('Start a reading plan')
-        .addStringOption((opt) =>
-          opt.setName('plan').setDescription('Plan ID').setRequired(true)
-        )
+        .addStringOption((opt) => {
+          opt.setName('plan').setDescription('Plan ID').setRequired(true);
+          plans.forEach((p) =>
+            opt.addChoices({ name: p.name || p.id, value: p.id })
+          );
+          return opt;
+        })
     )
     .addSubcommand((sub) =>
       sub.setName('status').setDescription('Show your reading plan status')
@@ -29,11 +34,21 @@ module.exports = {
       sub.setName('stop').setDescription('Stop the active reading plan')
     )
     .addSubcommand((sub) =>
-      sub.setName('complete').setDescription("Mark today's reading as complete")
-    ),
+      sub
+        .setName('complete')
+        .setDescription("Mark today's reading as complete")
+    )
+    .addSubcommand((sub) =>
+      sub.setName('list').setDescription('List available reading plans')
+    );
+  return builder;
+}
+
+module.exports = {
+  build,
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
-    const userId = interaction.user.id;
+    const userId = interaction.user?.id;
     if (sub === 'start') {
       const planId = interaction.options.getString('plan');
       try {
@@ -106,8 +121,7 @@ module.exports = {
       try {
         const { plan, nextDayReadings, streak, nextDay } = await completeDay(userId);
         if (nextDayReadings) {
-          const title =
-            nextDayReadings._meta && nextDayReadings._meta.title;
+          const title = nextDayReadings._meta && nextDayReadings._meta.title;
           const body = `Day ${nextDay + 1}${
             title ? `: ${title}` : ':'
           }\n${formatDay(nextDayReadings)}`;
@@ -133,6 +147,20 @@ module.exports = {
           ephemeral({ content: err.message || 'Failed to complete day.' })
         );
       }
+    } else if (sub === 'list') {
+      try {
+        const plans = await listPlanDefs();
+        const ids = plans.map((p) => p.id);
+        const content = ids.length
+          ? `Available plans: ${ids.join(', ')}`
+          : 'No plans available.';
+        await interaction.reply(ephemeral({ content }));
+      } catch (err) {
+        await interaction.reply(
+          ephemeral({ content: 'Failed to list plans.' })
+        );
+      }
     }
   },
 };
+

@@ -32,39 +32,41 @@ const commandDirs = [
   path.join(__dirname, "src", "commands"),
 ];
 
-commandDirs.forEach((commandsPath) => {
-  if (!fs.existsSync(commandsPath)) return;
-  fs.readdir(commandsPath, (err, files) => {
-    if (err) return console.error(err);
-    files
-      .filter((file) => file.endsWith(".js"))
-      .forEach((file) => {
-        const filePath = path.join(commandsPath, file);
-        try {
-          const command = require(filePath);
-          client.commands.set(command.data.name, command);
-          console.log(`Loaded command: ${file}`);
-        } catch (err) {
-          console.error(`Failed to load command ${file}:`, err);
+async function loadCommands() {
+  for (const commandsPath of commandDirs) {
+    if (!fs.existsSync(commandsPath)) continue;
+    const files = fs
+      .readdirSync(commandsPath)
+      .filter((file) => file.endsWith(".js"));
+    for (const file of files) {
+      const filePath = path.join(commandsPath, file);
+      try {
+        const command = require(filePath);
+        if (typeof command.build === "function") {
+          command.data = await command.build();
         }
-      });
-  });
-});
+        client.commands.set(command.data.name, command);
+        console.log(`Loaded command: ${file}`);
+      } catch (err) {
+        console.error(`Failed to load command ${file}:`, err);
+      }
+    }
+  }
+}
 
-if (fs.existsSync(buttonsPath)) {
-  fs.readdir(buttonsPath, (err, files) => {
-    if (err) return console.error(err);
-    files
-      .filter((file) => file.endsWith(".js"))
-      .forEach((file) => {
-        const filePath = path.join(buttonsPath, file);
-        const button = require(filePath);
-        const id = button.id || button.customId || button.data?.name;
-        if (id) {
-          client.buttons.set(id, button);
-        }
-      });
-  });
+function loadButtons() {
+  if (!fs.existsSync(buttonsPath)) return;
+  const files = fs
+    .readdirSync(buttonsPath)
+    .filter((file) => file.endsWith(".js"));
+  for (const file of files) {
+    const filePath = path.join(buttonsPath, file);
+    const button = require(filePath);
+    const id = button.id || button.customId || button.data?.name;
+    if (id) {
+      client.buttons.set(id, button);
+    }
+  }
 }
 
 async function onClientReady(client) {
@@ -141,4 +143,8 @@ client.on('messageDelete', (msg) => {
   searchSessions.delete(msg.id);
 });
 
-client.login(process.env.TOKEN);
+(async () => {
+  await loadCommands();
+  loadButtons();
+  client.login(process.env.TOKEN);
+})();
