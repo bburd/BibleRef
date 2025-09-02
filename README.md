@@ -316,6 +316,17 @@ Each **reading** is an object:
 
 **Tip:** keep a single day’s total text under ~1800 characters so it fits comfortably in a DM. Split long days into two readings or two days.
 
+### Seeding plans
+
+- Add plan JSON files to the `plans/` folder.
+- A legacy `plan_defs.json` file is still supported but optional.
+- On startup, the bot seeds all plans automatically via `seedPlans.seedAll`.
+- To seed manually, run:
+
+  ```bash
+  node src/boot/seedPlans.js
+  ```
+
 ---
 
 ## 🧰 Implementation Notes
