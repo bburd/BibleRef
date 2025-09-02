@@ -15,6 +15,7 @@ async function createAdapter(translation = 'asv', options = {}) {
   if (!file) throw new Error(`Unknown translation: ${translation}`);
   const dbPath = path.join(__dirname, '..', '..', 'db', file);
   const db = open(dbPath);
+  console.log(`[db] opened ${translation} at ${dbPath}`);
   const state = { db, columns: null, hasFts: false, stripStrongs: !!options.stripStrongs };
   await introspect(state);
   await ensureLocIndex(state);
