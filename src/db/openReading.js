@@ -1,5 +1,5 @@
 const { createAdapter } = require('./translations');
-const { STRONGS_REGEX, stripStrongs } = require('./strongs');
+const { stripStrongs } = require('./strongs');
 
 const STRONGS_FALLBACK = {
   kjv: 'kjv_strongs',
@@ -8,7 +8,8 @@ const STRONGS_FALLBACK = {
 
 async function openReading(translation = 'asv', options = {}) {
   try {
-    return await createAdapter(translation, options);
+    const adapter = await createAdapter(translation, options);
+    return adapter;
   } catch (err) {
     const strongs = STRONGS_FALLBACK[translation];
     if (!strongs) throw err;
@@ -51,7 +52,7 @@ async function openReadingAdapter(preferred = 'asv', options = {}) {
     return await openReading(preferred, options);
   } catch (err) {
     const fallback = preferred === 'kjv' ? 'asv' : 'kjv';
-    return openReading(fallback, options);
+    return await openReading(fallback, options);
   }
 }
 
