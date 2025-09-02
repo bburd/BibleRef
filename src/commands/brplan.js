@@ -9,7 +9,31 @@ const {
 } = require('../db/plans');
 const { ephemeral } = require('../utils/ephemeral');
 const { formatDayWithText } = require('../lib/plan-format-text');
-const { getUserTranslation } = require('../db/users');
+const { getUserTranslation } = require('../db/user-prefs');
+
+function chunkText(text, maxLength = 1900) {
+  const lines = text.split('\n');
+  const chunks = [];
+  let current = '';
+  for (const line of lines) {
+    if ((current + line + '\n').length > maxLength) {
+      if (current) chunks.push(current.trimEnd());
+      current = '';
+    }
+    current += line + '\n';
+  }
+  if (current) chunks.push(current.trimEnd());
+  return chunks;
+}
+
+async function sendChunks(user, header, bodyText) {
+  const chunks =
+    bodyText.length > 1900 ? chunkText(bodyText) : [bodyText];
+  await user.send(`${header}\n${chunks[0]}`);
+  for (let i = 1; i < chunks.length; i++) {
+    await user.send(chunks[i]);
+  }
+}
 
 async function build() {
   const plans = await listPlanDefs();
@@ -66,10 +90,12 @@ module.exports = {
         const dayReadings = plan.days[0];
         const title = dayReadings && dayReadings._meta && dayReadings._meta.title;
         const translation = (await getUserTranslation(userId)) || 'asv';
-        const body = await formatDayWithText(dayReadings, translation);
+        const bodyText = await formatDayWithText(dayReadings, translation);
         try {
-          await interaction.user.send(
-            `Day 1${title ? `: ${title}` : ':'}\n${body}`
+          await sendChunks(
+            interaction.user,
+            `Day 1${title ? `: ${title}` : ':'}`,
+            bodyText
           );
         } catch (err) {
           console.error('Failed to send DM:', err);
@@ -127,10 +153,12 @@ module.exports = {
         if (nextDayReadings) {
           const title = nextDayReadings._meta && nextDayReadings._meta.title;
           const translation = (await getUserTranslation(userId)) || 'asv';
-          const body = await formatDayWithText(nextDayReadings, translation);
+          const bodyText = await formatDayWithText(nextDayReadings, translation);
           try {
-            await interaction.user.send(
-              `Day ${nextDay + 1}${title ? `: ${title}` : ':'}\n${body}`
+            await sendChunks(
+              interaction.user,
+              `Day ${nextDay + 1}${title ? `: ${title}` : ':'}`,
+              bodyText
             );
           } catch (err) {
             console.error('Failed to send DM:', err);
