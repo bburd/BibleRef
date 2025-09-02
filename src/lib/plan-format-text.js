@@ -1,4 +1,4 @@
-const { openReading } = require('../db/openReading');
+const { openReadingAdapter } = require('../db/openReading');
 const { idToName } = require('./books');
 
 function compactRanges(verses = []) {
@@ -62,35 +62,38 @@ function renderMeta(meta) {
   return lines;
 }
 
-async function openAdapter(preferred) {
-  try {
-    return await openReading(preferred);
-  } catch (err) {
-    const fallback = preferred === 'kjv' ? 'asv' : 'kjv';
-    return await openReading(fallback);
-  }
-}
-
 async function formatDayWithText(day, preferredTranslation = 'asv') {
-  const adapter = await openAdapter(preferredTranslation);
-  const lines = [];
-  const readings = Array.isArray(day.readings) ? day.readings : [];
-  for (const r of readings) {
-    lines.push(`• ${buildLabel(r)}`);
-    for (const seg of r.ranges || []) {
-      let rows;
-      if (seg.verses && seg.verses.length) {
-        rows = await adapter.getVersesSubset(r.book, seg.chapter, seg.verses);
-      } else {
-        rows = await adapter.getChapter(r.book, seg.chapter);
-      }
-      for (const row of rows) {
-        lines.push(`  ${row.verse}. ${row.text}`);
+  if (!Array.isArray(day.readings) || day.readings.length === 0) {
+    return 'No readings for this day.';
+  }
+  const adapter = await openReadingAdapter(preferredTranslation, {
+    stripStrongs: true,
+  });
+  try {
+    const lines = [];
+    for (const r of day.readings) {
+      lines.push(`• ${buildLabel(r)}`);
+      for (const seg of r.ranges || []) {
+        let rows;
+        if (seg.verses && seg.verses.length) {
+          rows = await adapter.getVersesSubset(
+            r.book,
+            seg.chapter,
+            seg.verses
+          );
+        } else {
+          rows = await adapter.getChapter(r.book, seg.chapter);
+        }
+        for (const row of rows) {
+          lines.push(`  ${row.verse}. ${row.text}`);
+        }
       }
     }
+    if (day._meta) lines.push(...renderMeta(day._meta));
+    return lines.join('\n');
+  } finally {
+    adapter.close();
   }
-  if (day._meta) lines.push(...renderMeta(day._meta));
-  return lines.join('\n');
 }
 
 module.exports = { formatDayWithText };
