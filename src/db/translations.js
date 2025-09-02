@@ -1,6 +1,6 @@
 const path = require('path');
 const { open } = require('./conn');
-const { pget, pall, prun } = require('./p');
+const { pget, pall, prun, pexec } = require('./p');
 const { STRONGS_REGEX, stripStrongs } = require('./strongs');
 
 const FILES = {
@@ -15,6 +15,7 @@ async function createAdapter(translation = 'asv', options = {}) {
   if (!file) throw new Error(`Unknown translation: ${translation}`);
   const dbPath = path.join(__dirname, '..', '..', 'db', file);
   const db = open(dbPath);
+  console.log(`[db] opened ${translation} at ${dbPath}`);
   const state = { db, columns: null, hasFts: false, stripStrongs: !!options.stripStrongs };
   await introspect(state);
   await ensureLocIndex(state);
@@ -34,11 +35,7 @@ async function createAdapter(translation = 'asv', options = {}) {
     getVersesSubset: (book, chapter, verses) => getVersesSubset(state, book, chapter, verses),
     search: (q, limit) => search(state, q, limit),
     getRandom() {
-      return new Promise((resolve, reject) => {
-        db.get(randomSql, [], (err, row) =>
-          err ? reject(err) : resolve(maybeStrip(row) || null)
-        );
-      });
+      return pget(db, randomSql).then((row) => maybeStrip(row) || null);
     },
     close() {
       db.close();
