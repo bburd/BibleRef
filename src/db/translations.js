@@ -19,12 +19,30 @@ async function createAdapter(translation = 'asv', options = {}) {
   await introspect(state);
   await ensureLocIndex(state);
   await ensureFts(state, options.fts);
+  const cols = state.columns;
+  const maybeStrip = (row) => {
+    if (!row) return row;
+    return state.stripStrongs ? { ...row, text: stripStrongs(row.text) } : row;
+  };
+  const randomSql = `
+    SELECT ${cols.book} AS book, ${cols.chapter} AS chapter, ${cols.verse} AS verse, ${cols.text} AS text
+    FROM verses
+    ORDER BY RANDOM() LIMIT 1`;
   return {
     getVerse: (book, chapter, verse) => getVerse(state, book, chapter, verse),
     getChapter: (book, chapter) => getChapter(state, book, chapter),
     getVersesSubset: (book, chapter, verses) => getVersesSubset(state, book, chapter, verses),
     search: (q, limit) => search(state, q, limit),
-    close: () => {},
+    getRandom() {
+      return new Promise((resolve, reject) => {
+        db.get(randomSql, [], (err, row) =>
+          err ? reject(err) : resolve(maybeStrip(row) || null)
+        );
+      });
+    },
+    close() {
+      db.close();
+    },
     _db: state.db,
     _cols: state.columns,
   };

@@ -35,6 +35,10 @@ async function openReading(translation = 'asv', options = {}) {
           return r;
         });
       },
+      getRandom: async () => {
+        const row = await adapter.getRandom();
+        return row ? { ...row, text: stripStrongs(row.text) } : null;
+      },
       close: () => adapter.close(),
       _db: adapter._db,
       _cols: adapter._cols,
