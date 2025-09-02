@@ -1,0 +1,154 @@
+  {
+    "id": "john-21",
+    "name": "John in 21 Days",
+    "description": "Read the Gospel of John, one chapter per day.",
+    "days": [
+      [
+        {
+          "book": "John",
+          "chapter": 1,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 2,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 3,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 4,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 5,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 6,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 7,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 8,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 9,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 10,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 11,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 12,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 13,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 14,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 15,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 16,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 17,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 18,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 19,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 20,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 21,
+          "verses": null
+        }
+      ]
+    ]
+  }

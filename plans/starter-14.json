@@ -1,0 +1,227 @@
+  {
+    "id": "starter-14",
+    "name": "Gospel Starter (14 days)",
+    "description": "Key passages about Jesus, salvation, and new life.",
+    "days": [
+      [
+        {
+          "book": "John",
+          "chapter": 1,
+          "verses": [
+            1,
+            14
+          ],
+          "tags": [
+            "nt",
+            "gospel"
+          ]
+        },
+        {
+          "book": "Genesis",
+          "chapter": 1,
+          "verses": [
+            1,
+            26,
+            27
+          ],
+          "tags": [
+            "ot"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 3,
+          "verses": [
+            16,
+            17,
+            18,
+            21
+          ],
+          "tags": [
+            "nt",
+            "gospel"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Ephesians",
+          "chapter": 2,
+          "verses": [
+            1,
+            4,
+            5,
+            8,
+            9,
+            10
+          ],
+          "tags": [
+            "nt",
+            "epistle"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 3,
+          "verses": [
+            21,
+            22,
+            23,
+            24,
+            28
+          ],
+          "tags": [
+            "nt",
+            "epistle"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 5,
+          "verses": [
+            6,
+            8,
+            9,
+            10
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Isaiah",
+          "chapter": 53,
+          "verses": [
+            4,
+            5,
+            6,
+            11
+          ],
+          "tags": [
+            "ot",
+            "prophecy"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "1 Corinthians",
+          "chapter": 15,
+          "verses": [
+            3,
+            4,
+            20,
+            21,
+            22
+          ]
+        }
+      ],
+      [
+        {
+          "book": "John",
+          "chapter": 10,
+          "verses": [
+            10,
+            11,
+            27,
+            28,
+            29
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 8,
+          "verses": [
+            1,
+            31,
+            32,
+            38,
+            39
+          ]
+        }
+      ],
+      [
+        {
+          "book": "2 Corinthians",
+          "chapter": 5,
+          "verses": [
+            17,
+            21
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Titus",
+          "chapter": 3,
+          "verses": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Ephesians",
+          "chapter": 1,
+          "verses": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            13,
+            14
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Galatians",
+          "chapter": 2,
+          "verses": [
+            16,
+            20
+          ]
+        },
+        {
+          "book": "Galatians",
+          "chapter": 5,
+          "verses": [
+            1
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Revelation",
+          "chapter": 21,
+          "verses": [
+            3,
+            4,
+            5
+          ]
+        },
+        {
+          "book": "Revelation",
+          "chapter": 22,
+          "verses": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      ]
+    ]
+  }

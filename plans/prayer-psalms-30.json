@@ -1,0 +1,660 @@
+  {
+    "id": "prayer-psalms-30",
+    "name": "Praying the Psalms (30 days)",
+    "description": "Pray a psalm a day; add a short NT verse.",
+    "days": [
+      [
+        {
+          "book": "Psalms",
+          "chapter": 1,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "1 Thessalonians",
+          "chapter": 5,
+          "verses": [
+            16,
+            17,
+            18
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 3,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Philippians",
+          "chapter": 4,
+          "verses": [
+            6,
+            7
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 4,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Hebrews",
+          "chapter": 4,
+          "verses": [
+            16
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 5,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 12,
+          "verses": [
+            12
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 8,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "James",
+          "chapter": 5,
+          "verses": [
+            16
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 13,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "1 Peter",
+          "chapter": 5,
+          "verses": [
+            7
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 16,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "John",
+          "chapter": 14,
+          "verses": [
+            27
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 19,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 8,
+          "verses": [
+            26,
+            27
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 23,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Colossians",
+          "chapter": 3,
+          "verses": [
+            16,
+            17
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 27,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Ephesians",
+          "chapter": 3,
+          "verses": [
+            20,
+            21
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 32,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Jude",
+          "chapter": 1,
+          "verses": [
+            24,
+            25
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 34,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 15,
+          "verses": [
+            13
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 37,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Ephesians",
+          "chapter": 6,
+          "verses": [
+            18
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 40,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Matthew",
+          "chapter": 6,
+          "verses": [
+            33
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 42,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Luke",
+          "chapter": 11,
+          "verses": [
+            9,
+            10
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 46,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "2 Corinthians",
+          "chapter": 12,
+          "verses": [
+            9,
+            10
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 51,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "1 John",
+          "chapter": 5,
+          "verses": [
+            14,
+            15
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 55,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 5,
+          "verses": [
+            3,
+            4,
+            5
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 61,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "James",
+          "chapter": 1,
+          "verses": [
+            5
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 63,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Hebrews",
+          "chapter": 13,
+          "verses": [
+            20,
+            21
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 84,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Galatians",
+          "chapter": 5,
+          "verses": [
+            22,
+            23
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 86,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Matthew",
+          "chapter": 11,
+          "verses": [
+            28,
+            29,
+            30
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 91,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "2 Thessalonians",
+          "chapter": 3,
+          "verses": [
+            16
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 95,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "John",
+          "chapter": 16,
+          "verses": [
+            33
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 103,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "2 Timothy",
+          "chapter": 1,
+          "verses": [
+            7
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 116,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 8,
+          "verses": [
+            38,
+            39
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 121,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Ephesians",
+          "chapter": 1,
+          "verses": [
+            17,
+            18,
+            19
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 130,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "1 Peter",
+          "chapter": 1,
+          "verses": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 139,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Revelation",
+          "chapter": 21,
+          "verses": [
+            3,
+            4
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 145,
+          "verses": null,
+          "tags": [
+            "ot",
+            "prayer"
+          ]
+        },
+        {
+          "book": "Philippians",
+          "chapter": 1,
+          "verses": [
+            6
+          ],
+          "tags": [
+            "nt"
+          ]
+        }
+      ]
+    ]
+  }

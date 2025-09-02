@@ -1,0 +1,203 @@
+  {
+    "id": "doctrines-14",
+    "name": "Key Doctrines (14 days)",
+    "description": "Salvation, grace, faith, holiness, hope.",
+    "days": [
+      [
+        {
+          "book": "John",
+          "chapter": 3,
+          "verses": [
+            16,
+            17,
+            18
+          ]
+        },
+        {
+          "book": "Romans",
+          "chapter": 5,
+          "verses": [
+            1,
+            8
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Ephesians",
+          "chapter": 2,
+          "verses": [
+            1,
+            4,
+            8,
+            9,
+            10
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 8,
+          "verses": [
+            1,
+            28,
+            31,
+            32,
+            38,
+            39
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Isaiah",
+          "chapter": 6,
+          "verses": [
+            1,
+            2,
+            3,
+            5
+          ]
+        },
+        {
+          "book": "1 Peter",
+          "chapter": 1,
+          "verses": [
+            15,
+            16
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 3,
+          "verses": [
+            23,
+            24,
+            28
+          ]
+        }
+      ],
+      [
+        {
+          "book": "2 Corinthians",
+          "chapter": 5,
+          "verses": [
+            17,
+            18,
+            19,
+            20,
+            21
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Galatians",
+          "chapter": 2,
+          "verses": [
+            16
+          ]
+        },
+        {
+          "book": "Ephesians",
+          "chapter": 2,
+          "verses": [
+            8,
+            9
+          ]
+        }
+      ],
+      [
+        {
+          "book": "James",
+          "chapter": 2,
+          "verses": [
+            14,
+            17,
+            18,
+            26
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Titus",
+          "chapter": 3,
+          "verses": [
+            4,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      [
+        {
+          "book": "1 Thessalonians",
+          "chapter": 4,
+          "verses": [
+            3,
+            4,
+            7
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Hebrews",
+          "chapter": 10,
+          "verses": [
+            10,
+            14,
+            23
+          ]
+        }
+      ],
+      [
+        {
+          "book": "1 Peter",
+          "chapter": 1,
+          "verses": [
+            3,
+            4,
+            5
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Romans",
+          "chapter": 6,
+          "verses": [
+            1,
+            2,
+            3,
+            4,
+            11
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Jude",
+          "chapter": 1,
+          "verses": [
+            24,
+            25
+          ]
+        },
+        {
+          "book": "1 John",
+          "chapter": 5,
+          "verses": [
+            11,
+            12,
+            13
+          ]
+        }
+      ]
+    ]
+  }

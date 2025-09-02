@@ -1,0 +1,473 @@
+  {
+    "id": "attributes-21",
+    "name": "Attributes of God (21 days)",
+    "description": "Holiness, love, justice, mercy, immutability, and more.",
+    "days": [
+      {
+        "_meta": {
+          "title": "Holiness"
+        },
+        "readings": [
+          {
+            "book": "Isaiah",
+            "chapter": 6,
+            "verses": [
+              1,
+              2,
+              3,
+              5
+            ]
+          },
+          {
+            "book": "1 Peter",
+            "chapter": 1,
+            "verses": [
+              15,
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Love"
+        },
+        "readings": [
+          {
+            "book": "1 John",
+            "chapter": 4,
+            "verses": [
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "book": "John",
+            "chapter": 3,
+            "verses": [
+              16
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Justice"
+        },
+        "readings": [
+          {
+            "book": "Deuteronomy",
+            "chapter": 32,
+            "verses": [
+              4
+            ]
+          },
+          {
+            "book": "Romans",
+            "chapter": 3,
+            "verses": [
+              25,
+              26
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Mercy"
+        },
+        "readings": [
+          {
+            "book": "Ephesians",
+            "chapter": 2,
+            "verses": [
+              4,
+              5
+            ]
+          },
+          {
+            "book": "Titus",
+            "chapter": 3,
+            "verses": [
+              4,
+              5
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Patience"
+        },
+        "readings": [
+          {
+            "book": "2 Peter",
+            "chapter": 3,
+            "verses": [
+              9
+            ]
+          },
+          {
+            "book": "Romans",
+            "chapter": 2,
+            "verses": [
+              4
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Faithfulness"
+        },
+        "readings": [
+          {
+            "book": "Lamentations",
+            "chapter": 3,
+            "verses": [
+              22,
+              23
+            ]
+          },
+          {
+            "book": "2 Timothy",
+            "chapter": 2,
+            "verses": [
+              13
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Immutability"
+        },
+        "readings": [
+          {
+            "book": "Malachi",
+            "chapter": 3,
+            "verses": [
+              6
+            ]
+          },
+          {
+            "book": "Hebrews",
+            "chapter": 13,
+            "verses": [
+              8
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Omniscience"
+        },
+        "readings": [
+          {
+            "book": "Psalms",
+            "chapter": 139,
+            "verses": [
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          {
+            "book": "Hebrews",
+            "chapter": 4,
+            "verses": [
+              13
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Omnipresence"
+        },
+        "readings": [
+          {
+            "book": "Psalms",
+            "chapter": 139,
+            "verses": [
+              7,
+              8,
+              9,
+              10
+            ]
+          },
+          {
+            "book": "Jeremiah",
+            "chapter": 23,
+            "verses": [
+              24
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Omnipotence"
+        },
+        "readings": [
+          {
+            "book": "Jeremiah",
+            "chapter": 32,
+            "verses": [
+              17
+            ]
+          },
+          {
+            "book": "Matthew",
+            "chapter": 19,
+            "verses": [
+              26
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Wisdom"
+        },
+        "readings": [
+          {
+            "book": "Romans",
+            "chapter": 11,
+            "verses": [
+              33,
+              34,
+              36
+            ]
+          },
+          {
+            "book": "James",
+            "chapter": 1,
+            "verses": [
+              5
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Sovereignty"
+        },
+        "readings": [
+          {
+            "book": "Daniel",
+            "chapter": 4,
+            "verses": [
+              34,
+              35
+            ]
+          },
+          {
+            "book": "Ephesians",
+            "chapter": 1,
+            "verses": [
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Goodness"
+        },
+        "readings": [
+          {
+            "book": "Psalms",
+            "chapter": 34,
+            "verses": [
+              8
+            ]
+          },
+          {
+            "book": "Nahum",
+            "chapter": 1,
+            "verses": [
+              7
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Righteousness"
+        },
+        "readings": [
+          {
+            "book": "Psalms",
+            "chapter": 145,
+            "verses": [
+              17
+            ]
+          },
+          {
+            "book": "Romans",
+            "chapter": 1,
+            "verses": [
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Grace"
+        },
+        "readings": [
+          {
+            "book": "Ephesians",
+            "chapter": 2,
+            "verses": [
+              8,
+              9
+            ]
+          },
+          {
+            "book": "2 Corinthians",
+            "chapter": 12,
+            "verses": [
+              9
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Truth"
+        },
+        "readings": [
+          {
+            "book": "John",
+            "chapter": 14,
+            "verses": [
+              6
+            ]
+          },
+          {
+            "book": "John",
+            "chapter": 17,
+            "verses": [
+              17
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Glory"
+        },
+        "readings": [
+          {
+            "book": "Exodus",
+            "chapter": 34,
+            "verses": [
+              5,
+              6,
+              7
+            ]
+          },
+          {
+            "book": "Revelation",
+            "chapter": 4,
+            "verses": [
+              11
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Jealousy"
+        },
+        "readings": [
+          {
+            "book": "Exodus",
+            "chapter": 34,
+            "verses": [
+              14
+            ]
+          },
+          {
+            "book": "Nahum",
+            "chapter": 1,
+            "verses": [
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Compassion"
+        },
+        "readings": [
+          {
+            "book": "Psalms",
+            "chapter": 103,
+            "verses": [
+              13,
+              14
+            ]
+          },
+          {
+            "book": "Matthew",
+            "chapter": 9,
+            "verses": [
+              36
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Providence"
+        },
+        "readings": [
+          {
+            "book": "Romans",
+            "chapter": 8,
+            "verses": [
+              28
+            ]
+          },
+          {
+            "book": "Matthew",
+            "chapter": 6,
+            "verses": [
+              26,
+              33
+            ]
+          }
+        ]
+      },
+      {
+        "_meta": {
+          "title": "Triune Blessing"
+        },
+        "readings": [
+          {
+            "book": "Matthew",
+            "chapter": 28,
+            "verses": [
+              19
+            ]
+          },
+          {
+            "book": "2 Corinthians",
+            "chapter": 13,
+            "verses": [
+              14
+            ]
+          }
+        ]
+      }
+    ]
+  }

@@ -9,23 +9,30 @@ const { fetchWithRetry } = require("./utils/http");
 const commands = [];
 const commandDirs = ["./commands", "./src/commands"];
 
-for (const dir of commandDirs) {
-  if (!fs.existsSync(dir)) continue;
-  const commandFiles = fs
-    .readdirSync(dir)
-    .filter((file) => file.endsWith(".js"));
-  for (const file of commandFiles) {
-    try {
-      const command = require(`${dir}/${file}`);
-      commands.push(command.data.toJSON());
-    } catch (err) {
-      console.error(`Failed to load command ${dir}/${file}:`, err);
+async function gatherCommands() {
+  for (const dir of commandDirs) {
+    if (!fs.existsSync(dir)) continue;
+    const commandFiles = fs
+      .readdirSync(dir)
+      .filter((file) => file.endsWith(".js"));
+    for (const file of commandFiles) {
+      try {
+        const command = require(`${dir}/${file}`);
+        const data =
+          typeof command.build === "function"
+            ? await command.build()
+            : command.data;
+        commands.push(data.toJSON());
+      } catch (err) {
+        console.error(`Failed to load command ${dir}/${file}:`, err);
+      }
     }
   }
 }
 
 (async () => {
   try {
+    await gatherCommands();
     console.log("Started refreshing application (/) commands.");
 
     const headers = {

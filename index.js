@@ -5,7 +5,6 @@ const path = require("path");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Correct import
 const { setupPlanScheduler } = require("./scheduler/planScheduler");
-const { seed } = require("./src/boot/seedPlans");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
 const { handleButtons: handleTriviaButtons } = require("./src/commands/brtrivia");
@@ -13,6 +12,9 @@ const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
 const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 const { ephemeral } = require("./src/utils/ephemeral");
 const { activeTrivia, searchSessions } = require('./src/state/sessions');
+
+try { require('./src/boot/seedPlans').seedAll(); }
+catch (e) { console.warn('[seedPlans] skipped:', e.message); }
 
 const client = new Client({
   intents: [
@@ -30,44 +32,45 @@ const commandDirs = [
   path.join(__dirname, "src", "commands"),
 ];
 
-commandDirs.forEach((commandsPath) => {
-  if (!fs.existsSync(commandsPath)) return;
-  fs.readdir(commandsPath, (err, files) => {
-    if (err) return console.error(err);
-    files
-      .filter((file) => file.endsWith(".js"))
-      .forEach((file) => {
-        const filePath = path.join(commandsPath, file);
-        try {
-          const command = require(filePath);
-          client.commands.set(command.data.name, command);
-          console.log(`Loaded command: ${file}`);
-        } catch (err) {
-          console.error(`Failed to load command ${file}:`, err);
+async function loadCommands() {
+  for (const commandsPath of commandDirs) {
+    if (!fs.existsSync(commandsPath)) continue;
+    const files = fs
+      .readdirSync(commandsPath)
+      .filter((file) => file.endsWith(".js"));
+    for (const file of files) {
+      const filePath = path.join(commandsPath, file);
+      try {
+        const command = require(filePath);
+        if (typeof command.build === "function") {
+          command.data = await command.build();
         }
-      });
-  });
-});
+        client.commands.set(command.data.name, command);
+        console.log(`Loaded command: ${file}`);
+      } catch (err) {
+        console.error(`Failed to load command ${file}:`, err);
+      }
+    }
+  }
+}
 
-if (fs.existsSync(buttonsPath)) {
-  fs.readdir(buttonsPath, (err, files) => {
-    if (err) return console.error(err);
-    files
-      .filter((file) => file.endsWith(".js"))
-      .forEach((file) => {
-        const filePath = path.join(buttonsPath, file);
-        const button = require(filePath);
-        const id = button.id || button.customId || button.data?.name;
-        if (id) {
-          client.buttons.set(id, button);
-        }
-      });
-  });
+function loadButtons() {
+  if (!fs.existsSync(buttonsPath)) return;
+  const files = fs
+    .readdirSync(buttonsPath)
+    .filter((file) => file.endsWith(".js"));
+  for (const file of files) {
+    const filePath = path.join(buttonsPath, file);
+    const button = require(filePath);
+    const id = button.id || button.customId || button.data?.name;
+    if (id) {
+      client.buttons.set(id, button);
+    }
+  }
 }
 
 async function onClientReady(client) {
   console.log(`Logged in as ${client.user.tag}`);
-  await seed();
   setupDailyVerse(client); // Set up the daily verse scheduler when the client is ready
   setupPlanScheduler(client);
 }
@@ -140,4 +143,8 @@ client.on('messageDelete', (msg) => {
   searchSessions.delete(msg.id);
 });
 
-client.login(process.env.TOKEN);
+(async () => {
+  await loadCommands();
+  loadButtons();
+  client.login(process.env.TOKEN);
+})();
