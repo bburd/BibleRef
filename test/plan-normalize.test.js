@@ -25,22 +25,55 @@ test('normalizeDays handles array of readings', () => {
 const days3 = normalizeDays([
   {
     readings: [
-      { ref: 'John 3:16', title: 'Memory', note: 'For God so loved', translation: 'NIV' },
-      'Genesis 1'
+      {
+        ref: 'John 3:16',
+        title: 'Memory',
+        note: 'For God so loved',
+        prayer: 'Thank you',
+        translation: 'NIV',
+        image: 'http://img',
+        link: 'http://link',
+        tags: ['gospel'],
+        extra: 'ignored',
+      },
+      'Genesis 1',
     ],
-    _meta: { mood: 'happy' }
-  }
+    _meta: {
+      title: 'Day title',
+      note: 'Day note',
+      prayer: 'Day prayer',
+      discussion: 'Talk',
+      link: 'http://day',
+      mood: 'happy',
+    },
+  },
 ]);
 
-test('normalizeDays preserves metadata and day-level _meta', () => {
+test('normalizeDays filters metadata and day-level _meta', () => {
   assert.deepEqual(days3, [
     {
       readings: [
-        { book:43, ranges:[{ chapter:3, verses:[16] }], title:'Memory', note:'For God so loved', translation:'NIV' },
-        { book:1, ranges:[{ chapter:1 }] }
+        {
+          book: 43,
+          ranges: [{ chapter: 3, verses: [16] }],
+          title: 'Memory',
+          note: 'For God so loved',
+          prayer: 'Thank you',
+          translation: 'NIV',
+          image: 'http://img',
+          link: 'http://link',
+          tags: ['gospel'],
+        },
+        { book: 1, ranges: [{ chapter: 1 }] },
       ],
-      _meta: { mood: 'happy' }
-    }
+      _meta: {
+        title: 'Day title',
+        note: 'Day note',
+        prayer: 'Day prayer',
+        discussion: 'Talk',
+        link: 'http://day',
+      },
+    },
   ]);
 });
 
@@ -51,11 +84,16 @@ test('formatReading compacts verse ranges', () => {
   assert.equal(formattedReading, 'John 3:1-3,5,7-8');
 });
 
-const dayForFormat = { readings: [
-  { book:43, ranges:[{ chapter:3, verses:[16,17] }] },
-  { book:1, ranges:[{ chapter:1 }] }
-] };
+const dayForFormat = {
+  readings: [
+    { book: 43, ranges: [{ chapter: 3, verses: [16, 17] }], note: 'Key', translation: 'NIV' },
+  ],
+  _meta: { note: 'Day note' },
+};
 
-test('formatDay bulletizes readings', () => {
-  assert.equal(formatDay(dayForFormat), '• John 3:16-17\n• Genesis 1');
+test('formatDay renders metadata', () => {
+  assert.equal(
+    formatDay(dayForFormat),
+    '• John 3:16-17 (NIV)\n  Note: Key\nNote: Day note'
+  );
 });
