@@ -7,9 +7,6 @@ const { setupDailyVerse } = require("./scheduler/dailyVerseScheduler"); // Corre
 const { setupPlanScheduler } = require("./scheduler/planScheduler");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
-const { handleButtons: handleTriviaButtons } = require("./src/commands/brtrivia");
-const { handleButtons: handleLexButtons } = require("./src/commands/brlex");
-const { handleButtons: handleSearchButtons } = require("./commands/brsearch");
 const { ephemeral } = require("./src/utils/ephemeral");
 const { activeTrivia, searchSessions } = require('./src/state/sessions');
 
@@ -104,13 +101,16 @@ client.on("interactionCreate", async (interaction) => {
       );
     }
   } else if (interaction.isButton()) {
-    const searchHandled = await handleSearchButtons(interaction);
-    if (searchHandled) return;
-    const triviaHandled = await handleTriviaButtons(interaction);
-    if (triviaHandled) return;
-    const lexHandled = await handleLexButtons(interaction);
-    if (lexHandled) return;
-    // Attempt to handle context-specific buttons before other handlers
+    for (const cmd of client.commands.values()) {
+      if (typeof cmd.handleButtons === 'function') {
+        try {
+          const handled = await cmd.handleButtons(interaction);
+          if (handled) return;
+        } catch (err) {
+          console.error('Error in command button handler:', err);
+        }
+      }
+    }
     const contextHandled = await handleContextButtons(interaction);
     if (contextHandled) return;
 
