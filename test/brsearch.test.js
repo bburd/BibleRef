@@ -39,7 +39,8 @@ test('brsearch text paginates long results', async () => {
 
   await brsearch.execute(interaction);
 
-  assert.ok(reply.content.length <= 2000);
+  const desc = reply.embeds[0]?.data?.description || '';
+  assert.ok(desc.length <= 4096);
   assert.ok(reply.components.length > 0);
 });
 
@@ -78,7 +79,8 @@ test('brsearch topic groups results by book', async () => {
 
   await brsearch.execute(interaction);
 
-  assert.ok(/Genesis/.test(reply.content));
-  assert.ok(/Exodus/.test(reply.content));
+  const desc = reply.embeds[0]?.data?.description || '';
+  assert.ok(/Genesis/.test(desc));
+  assert.ok(/Exodus/.test(desc));
 });
 
