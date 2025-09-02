@@ -1,6 +1,6 @@
 # BibleRef
 
-BibleRef is a compact, self-hostable Discord bot for Bible study, daily engagement, and fellowship. This bot is not dependant on any external API, both translations are included in SQLite databases. It supports **ASV** and **KJV** for reading, and opt-in **Strong’s** features using ASV/KJV datasets enriched with Strong’s numbers. Users can set their preferred reading translation with `/brtranslation`.
+BibleRef is a compact, self-hostable Discord bot for Bible study, daily engagement, and fellowship. This bot is not dependant on an external API for Scripture. ASV + KJV translations are included in SQLite databases. It supports **ASV** and **KJV** for reading, and opt-in **Strong’s** features using ASV/KJV datasets enriched with Strong’s numbers. Users can set their preferred reading translation with `/brtranslation`.
 
 >[!NOTE]
 >This was created with God's will and ChatGPT — Soli Deo Gloria. 🙏

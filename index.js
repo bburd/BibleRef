@@ -8,6 +8,7 @@ const { setupPlanScheduler } = require("./scheduler/planScheduler");
 const handleAutocomplete = require("./src/interaction/autocomplete");
 const handleContextButtons = require("./src/interaction/contextButtons");
 const { ephemeral } = require("./src/utils/ephemeral");
+const { safeReply } = require("./src/utils/safeReply");
 const { activeTrivia, searchSessions } = require('./src/state/sessions');
 
 try { require('./src/boot/seedPlans').seedAll(); }
@@ -75,6 +76,14 @@ async function onClientReady(client) {
 client.once("clientReady", onClientReady);
 client.once("ready", onClientReady);
 
+client.on('error', (error) => {
+  console.error('Discord client error:', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
+});
+
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete()) {
     try {
@@ -87,16 +96,20 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (!command) {
-      await interaction.reply(ephemeral({
-        content: "Unknown command.",
-      }));
+      await safeReply(
+        interaction,
+        ephemeral({
+          content: "Unknown command.",
+        })
+      );
       return;
     }
     try {
       await command.execute(interaction);
     } catch (error) {
       console.error("Error executing command:", error);
-      await interaction.reply(
+      await safeReply(
+        interaction,
         ephemeral({ content: "There was an error while executing this command!" })
       );
     }
@@ -117,7 +130,8 @@ client.on("interactionCreate", async (interaction) => {
     const handler = client.buttons.get(interaction.customId);
     if (!handler) {
       try {
-        await interaction.reply(
+        await safeReply(
+          interaction,
           ephemeral({ content: "Unknown button interaction." })
         );
       } catch (err) {
@@ -129,11 +143,10 @@ client.on("interactionCreate", async (interaction) => {
       await handler.execute(interaction);
     } catch (error) {
       console.error(`Error executing button handler ${interaction.customId}:`, error);
-      if (!interaction.replied) {
-        await interaction.reply(
-          ephemeral({ content: "There was an error while executing this action!" })
-        );
-      }
+      await safeReply(
+        interaction,
+        ephemeral({ content: "There was an error while executing this action!" })
+      );
     }
   }
 });
