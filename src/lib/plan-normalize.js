@@ -1,17 +1,39 @@
 const { toReading } = require('./parseRef');
 const { idToName } = require('./books');
 
+// Allowed metadata fields for readings and day-level _meta.
+const META_FIELDS = [
+  'title',
+  'note',
+  'prayer',
+  'discussion',
+  'translation',
+  'image',
+  'link',
+  'tags',
+];
+
+function pickMeta(obj) {
+  if (!obj || typeof obj !== 'object') return {};
+  const meta = {};
+  for (const key of META_FIELDS) {
+    if (obj[key] !== undefined) meta[key] = obj[key];
+  }
+  return meta;
+}
+
 function normalizeReading(input) {
   if (!input) return null;
   if (typeof input === 'string') {
     return toReading(input);
   }
   if (typeof input === 'object') {
-    const { ref, book, ranges, chapter, verses, ...meta } = input;
+    const { ref, book, ranges, chapter, verses, ...rest } = input;
     const spec = ref !== undefined ? ref : { book, ranges, chapter, verses };
     const reading = toReading(spec);
     if (!reading) return null;
-    return { ...reading, ...meta };
+    const meta = pickMeta(rest);
+    return Object.keys(meta).length ? { ...reading, ...meta } : reading;
   }
   return null;
 }
@@ -28,7 +50,10 @@ function normalizeDay(day) {
     if ('readings' in day || '_meta' in day) {
       const { readings = [], _meta } = day;
       const norm = { readings: readings.map(normalizeReading) };
-      if (_meta !== undefined) norm._meta = _meta;
+      if (_meta !== undefined) {
+        const meta = pickMeta(_meta);
+        if (Object.keys(meta).length) norm._meta = meta;
+      }
       return norm;
     }
     return { readings: [normalizeReading(day)] };
@@ -68,12 +93,35 @@ function formatReading(reading) {
     }
   }
   const ref = `${bookName} ${segments.join(';')}`.trim();
-  return reading.title ? `${reading.title}: ${ref}` : ref;
+  let out = reading.title ? `${reading.title}: ${ref}` : ref;
+  if (reading.translation) out += ` (${reading.translation})`;
+  return out;
+}
+
+function renderMeta(meta, indent = '', opts = {}) {
+  const lines = [];
+  if (!meta) return lines;
+  for (const key of META_FIELDS) {
+    if (key === 'title') continue; // titles handled separately
+    if (opts.skipTranslation && key === 'translation') continue;
+    if (meta[key] !== undefined) {
+      const value =
+        key === 'tags' && Array.isArray(meta[key]) ? meta[key].join(', ') : meta[key];
+      lines.push(`${indent}${key[0].toUpperCase() + key.slice(1)}: ${value}`);
+    }
+  }
+  return lines;
 }
 
 function formatDay(day) {
   const readings = Array.isArray(day.readings) ? day.readings : [];
-  return readings.map((r) => `• ${formatReading(r)}`).join('\n');
+  const lines = [];
+  for (const r of readings) {
+    lines.push(`• ${formatReading(r)}`);
+    lines.push(...renderMeta(r, '  ', { skipTranslation: true }));
+  }
+  if (day._meta) lines.push(...renderMeta(day._meta));
+  return lines.join('\n');
 }
 
 module.exports = { normalizeDays, formatReading, formatDay };

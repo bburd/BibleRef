@@ -25,17 +25,6 @@ async function checkPlans(client) {
       const user = await client.users.fetch(p.user_id);
       const title = dayReadings._meta && dayReadings._meta.title;
       let body = `Day ${p.day + 1}${title ? `: ${title}` : ':'}\n${formatDay(dayReadings)}`;
-      if (dayReadings._meta) {
-        const meta = { ...dayReadings._meta };
-        delete meta.title;
-        if (meta.note) {
-          body += `\nNote: ${meta.note}`;
-          delete meta.note;
-        }
-        for (const [k, v] of Object.entries(meta)) {
-          body += `\n${k}: ${v}`;
-        }
-      }
       await user.send(body);
       await plansDb.updateLastNotified(p.user_id, todayStr);
       if (p.last_completed !== yest) {
