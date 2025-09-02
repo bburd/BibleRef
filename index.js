@@ -76,6 +76,14 @@ async function onClientReady(client) {
 client.once("clientReady", onClientReady);
 client.once("ready", onClientReady);
 
+client.on('error', (error) => {
+  console.error('Discord client error:', error);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
+});
+
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete()) {
     try {
