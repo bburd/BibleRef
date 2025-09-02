@@ -1,0 +1,627 @@
+  {
+    "id": "ps-prov-31",
+    "name": "Psalms & Proverbs (31 days)",
+    "description": "Daily worship and wisdom readings.",
+    "days": [
+      [
+        {
+          "book": "Psalms",
+          "chapter": 1,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 1,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 8,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 2,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 15,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 3,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 19,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 4,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 23,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 5,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 24,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 6,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 27,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 7,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 32,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 8,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 34,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 9,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 37,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 10,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 40,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 11,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 42,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 12,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 46,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 13,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 51,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 14,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 63,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 15,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 84,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 16,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 86,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 17,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 91,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 18,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 95,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 19,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 96,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 20,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 100,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 21,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 103,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 22,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 112,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 23,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 113,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 24,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 116,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 25,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 118,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 26,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 121,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 27,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 127,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 28,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 130,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 29,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 139,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 30,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ],
+      [
+        {
+          "book": "Psalms",
+          "chapter": 145,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        },
+        {
+          "book": "Proverbs",
+          "chapter": 31,
+          "verses": null,
+          "tags": [
+            "ot",
+            "wisdom"
+          ]
+        }
+      ]
+    ]
+  }
