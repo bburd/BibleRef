@@ -1,0 +1,28 @@
+  {
+    "id": "genesis-3day",
+    "name": "Genesis Three Day Plan",
+    "description": "Read Genesis 1–3 over three days",
+    "days": [
+      [
+        {
+          "book": "Genesis",
+          "chapter": 1,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "Genesis",
+          "chapter": 2,
+          "verses": null
+        }
+      ],
+      [
+        {
+          "book": "Genesis",
+          "chapter": 3,
+          "verses": null
+        }
+      ]
+    ]
+  }
