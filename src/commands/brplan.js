@@ -6,10 +6,15 @@ const {
   getUserPlan,
   stopPlan,
   listPlanDefs,
+  updateLastNotified,
 } = require('../db/plans');
 const { ephemeral } = require('../utils/ephemeral');
 const { formatDayWithText } = require('../lib/plan-format-text');
 const { getUserTranslation } = require('../db/user-prefs');
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function chunkText(text, maxLength = 1900) {
   const lines = text.split('\n');
@@ -97,6 +102,7 @@ module.exports = {
             `Day 1${title ? `: ${title}` : ':'}`,
             bodyText
           );
+          await updateLastNotified(userId, todayStr());
         } catch (err) {
           console.error('Failed to send DM:', err);
         }
@@ -160,12 +166,14 @@ module.exports = {
               `Day ${nextDay + 1}${title ? `: ${title}` : ':'}`,
               bodyText
             );
+            await updateLastNotified(userId, todayStr());
           } catch (err) {
             console.error('Failed to send DM:', err);
           }
         } else {
           try {
             await interaction.user.send('Plan completed!');
+            await updateLastNotified(userId, todayStr());
           } catch (err) {
             console.error('Failed to send DM:', err);
           }
